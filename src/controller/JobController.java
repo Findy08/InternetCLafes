@@ -1,93 +1,82 @@
-//package controller;
-//
-//import java.sql.Connection;
-//import java.sql.ResultSet;
-//import java.sql.SQLException;
-//import java.sql.Statement;
-//import java.util.ArrayList;
-//
-//import database.Database;
-//import model.Job;
-//
-//public class JobController {
-//
-//	public void AddNewUser(String username, String password, Integer age) {
-//		try(Connection connection = Database.getDB().getConnection()){
-//			String query = "INSERT INTO Users(UserName, UserPassword, UserAge, UserRole) VALUES (" + "'" + username + "'" + "," + "'" + password + "'" + "," + age + "," + "'Customer'" + ")";
-//			Statement statement = connection.createStatement();
-//			statement.executeUpdate(query);
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//		}
-//	}
-//	
-//	public ArrayList<User> GetAllUserData() {
-//		ArrayList<User> user = new ArrayList<User>();
-//		String query = "SELECT * FROM Users WHERE UserRole = 'Customer'";
-//		try(Connection connection = Database.getDB().getConnection()){
-//			Statement statement = connection.createStatement();
-//			ResultSet resultSet = statement.executeQuery(query);
-//			while(resultSet.next()) {
-//				String name = resultSet.getString("UserName");
-//				String pw = resultSet.getString("UserPassword");
-//				Integer age = resultSet.getInt("UserAge");
-//				user.add(new User(name, pw, age));
-//			}
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//		}
-//		return user;
-//	}
-//	
-//	public User GetUserData(String UserName, String UserPassword) {
-//		User user = new User();
-//		String query = "SELECT * FROM Users WHERE UserName = '" + UserName + "' AND UserPassword = '" + UserPassword + "'";
-//		try(Connection connection = Database.getDB().getConnection()){
-//			Statement statement = connection.createStatement();
-//			ResultSet resultSet = statement.executeQuery(query);
-//			if(resultSet.next()) {
-//				user.setUserID(resultSet.getInt("UserID"));
-//				user.setUserName(resultSet.getString("UserName"));
-//				user.setUserPassword(resultSet.getString("UserPassword"));
-//				user.setUserAge(resultSet.getInt("UserAge"));
-//				user.setUserRole(resultSet.getString("UserRole"));
-//			}
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//		}
-//		return user;
-//	}
-//	
-//	public ArrayList<User> GetAllTechnician() {
-//		ArrayList<User> user = new ArrayList<User>();
-//		String query = "SELECT * FROM Users WHERE UserRole = 'Technician'";
-//		try(Connection connection = Database.getDB().getConnection()){
-//			Statement statement = connection.createStatement();
-//			ResultSet resultSet = statement.executeQuery(query);
-//			while(resultSet.next()) {
-//				String name = resultSet.getString("UserName");
-//				String pw = resultSet.getString("UserPassword");
-//				Integer age = resultSet.getInt("UserAge");
-//				user.add(new User(name, pw, age));
-//			}
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//		}
-//		return user;
-//	}
-//	
-//	public void ChangeUserRole(Integer UserID, String NewRole) {
-//   	 //[Step 4] Implement updateProduct here
-//   	String query = "UPDATE Users SET UserRole = '"
-//               + NewRole + "' WHERE UserID = " + UserID;
-//   	try (Connection connection = Database.getDB().getConnection();
-//   	  Statement statement = connection.createStatement()) { 
-//   	  System.out.println(query);
-//   	  statement.executeUpdate(query);
-//   	} catch (SQLException e) {
-//   	  e.printStackTrace();
-//   	}
-//   	
-//   }
-//
-//}
+package controller;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+
+import database.Database;
+import model.Job;
+
+public class JobController {
+
+	public void AddNewJob(Integer UserID, Integer PcID) {
+		Job j = new Job();
+		j.setUserID(UserID);
+	    j.setPC_ID(PcID);		
+	    String query = "INSERT INTO Job(UserID, PC_ID) VALUES (?, ?)";
+		try(Connection connection = Database.getDB().getConnection();
+			PreparedStatement ps = connection.prepareStatement(query)){
+				ps.setInt(1, j.getUserID());
+				ps.setInt(2, j.getPC_ID());
+				ps.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public ArrayList<Job> GetAllJobData() {
+		ArrayList<Job> j = new ArrayList<Job>();
+		String query = "SELECT * FROM Job";
+		try(Connection connection = Database.getDB().getConnection()){
+			PreparedStatement ps = connection.prepareStatement(query);
+			ResultSet resultSet = ps.executeQuery();
+			while(resultSet.next()) {
+				Integer id = resultSet.getInt("Job_ID");
+				Integer uID = resultSet.getInt("UserID");
+				Integer pcID = resultSet.getInt("PC_ID");
+				String stat = resultSet.getString("JobStatus");
+				j.add(new Job(id, uID, pcID, stat));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return j;
+	}
+	
+	public ArrayList<Job> GetTechnicianJob(Integer UserID) {
+		ArrayList<Job> user = new ArrayList<Job>();
+		String query = "SELECT * FROM Job WHERE UserID = ?";
+		try(Connection connection = Database.getDB().getConnection()){
+			PreparedStatement ps = connection.prepareStatement(query);
+			ps.setInt(1, UserID);
+			ResultSet resultSet = ps.executeQuery();
+			while(resultSet.next()) {
+				Integer id = resultSet.getInt("Job_ID");
+				Integer pcid = resultSet.getInt("PC_ID");
+				String stat = resultSet.getString("JobStatus");
+				user.add(new Job(id, UserID, pcid, stat));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return user;
+	}
+	
+	public void UpdateRoleStatus(Integer JobID, String JobStatus) {
+   	String query = "UPDATE Users SET JobStatus = ? WHERE JobID = ?";
+   	try (Connection connection = Database.getDB().getConnection();
+   		PreparedStatement ps = connection.prepareStatement(query)){
+   		ps.setString(1, JobStatus);
+		ps.setInt(2, JobID);
+   		ps.executeUpdate();
+   	} catch (SQLException e) {
+   	  e.printStackTrace();
+   	}
+   	
+   }
+	
+	//GetPcOnWorkingList belom, ga paham soalnya
+
+}
