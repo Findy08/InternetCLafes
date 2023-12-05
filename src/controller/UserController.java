@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 
 import database.Database;
@@ -14,13 +13,16 @@ public class UserController {
 
 	public void AddNewUser(String username, String password, Integer age) {
 		User u = new User();
-		String query = "INSERT INTO Users(UserName, UserPassword, UserAge, UserRole) VALUES (?, ?, ?, ?)";
+		u.setUserName(username);
+	    u.setUserPassword(password);
+	    u.setUserAge(age);
+	    u.setUserRole("Customer");
+		String query = "INSERT INTO Users(UserName, UserPassword, UserAge, UserRole) VALUES (?, ?, ?, 'Customer')";
 		try(Connection connection = Database.getDB().getConnection();
 			PreparedStatement ps = connection.prepareStatement(query)){
-				ps.setString(2, u.getUserName());
-				ps.setString(3, u.getUserPassword());
-				ps.setInt(4, u.getUserAge());
-				ps.setString(3, u.getUserRole());
+				ps.setString(1, u.getUserName());
+				ps.setString(2, u.getUserPassword());
+				ps.setInt(3, u.getUserAge());
 				ps.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -31,8 +33,8 @@ public class UserController {
 		ArrayList<User> user = new ArrayList<User>();
 		String query = "SELECT * FROM Users WHERE UserRole = 'Customer'";
 		try(Connection connection = Database.getDB().getConnection()){
-			Statement statement = connection.createStatement();
-			ResultSet resultSet = statement.executeQuery(query);
+			PreparedStatement ps = connection.prepareStatement(query);
+			ResultSet resultSet = ps.executeQuery();
 			while(resultSet.next()) {
 				String name = resultSet.getString("UserName");
 				String pw = resultSet.getString("UserPassword");
@@ -48,11 +50,13 @@ public class UserController {
 	public User GetUserData(String UserName, String UserPassword) {
 		User user = new User();
 		String query = "SELECT * FROM Users WHERE UserName = ? AND UserPassword = ?";
-		try(Connection connection = Database.getDB().getConnection();
-    			PreparedStatement ps = connection.prepareStatement(query)){
-			ps.setString(1, user.getUserName());
-			ps.setString(1, user.getUserPassword());
-			ps.executeUpdate();
+		try{
+			Connection connection = Database.getDB().getConnection();
+			PreparedStatement ps = connection.prepareStatement(query);
+			ps.setString(1, UserName);
+			ps.setString(2, UserPassword);
+			
+			ResultSet resultSet = ps.executeQuery();
 			if(resultSet.next()) {
 				user.setUserID(resultSet.getInt("UserID"));
 				user.setUserName(resultSet.getString("UserName"));
@@ -63,6 +67,7 @@ public class UserController {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		System.out.println(user.getUserName());
 		return user;
 	}
 	
@@ -70,8 +75,8 @@ public class UserController {
 		ArrayList<User> user = new ArrayList<User>();
 		String query = "SELECT * FROM Users WHERE UserRole = 'Technician'";
 		try(Connection connection = Database.getDB().getConnection()){
-			Statement statement = connection.createStatement();
-			ResultSet resultSet = statement.executeQuery(query);
+			PreparedStatement ps = connection.prepareStatement(query);
+			ResultSet resultSet = ps.executeQuery();
 			while(resultSet.next()) {
 				String name = resultSet.getString("UserName");
 				String pw = resultSet.getString("UserPassword");
@@ -85,13 +90,12 @@ public class UserController {
 	}
 	
 	public void ChangeUserRole(Integer UserID, String NewRole) {
-   	 //[Step 4] Implement updateProduct here
-   	String query = "UPDATE Users SET UserRole = '"
-               + NewRole + "' WHERE UserID = " + UserID;
+   	String query = "UPDATE Users SET UserRole = ? WHERE UserID = ?";
    	try (Connection connection = Database.getDB().getConnection();
-   	  Statement statement = connection.createStatement()) { 
-   	  System.out.println(query);
-   	  statement.executeUpdate(query);
+   		PreparedStatement ps = connection.prepareStatement(query)){
+   		ps.setString(1, NewRole);
+		ps.setInt(2, UserID);
+   		ps.executeUpdate();
    	} catch (SQLException e) {
    	  e.printStackTrace();
    	}
@@ -100,10 +104,11 @@ public class UserController {
 
 	public Integer GetID(String name) {
 		Integer id = null;
-		String query = "SELECT UserID FROM Users WHERE UserName = '" + name + "'";
+		String query = "SELECT UserID FROM Users WHERE UserName = ?";
 		try(Connection connection = Database.getDB().getConnection()){
-			Statement statement = connection.createStatement();
-			ResultSet resultSet = statement.executeQuery(query);
+			PreparedStatement ps = connection.prepareStatement(query);
+			ps.setString(1, name);
+			ResultSet resultSet = ps.executeQuery();
 			if(resultSet.next()) {
 				id = resultSet.getInt("UserID");
 			}
