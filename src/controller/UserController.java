@@ -29,6 +29,26 @@ public class UserController {
 		}
 	}
 	
+	//login
+		public boolean login(String username, String password) {
+		    String query = "SELECT * FROM Users WHERE UserName = ? AND UserPassword = ?";
+		    
+		    try (Connection connection = Database.getDB().getConnection();
+		         PreparedStatement ps = connection.prepareStatement(query)) {
+		        ps.setString(1, username);
+		        ps.setString(2, password);
+
+		        ResultSet rs = ps.executeQuery();
+	            if (rs.next()) {
+	                return true;
+	            }
+		    } catch (SQLException e) {
+		        e.printStackTrace();
+		    }
+
+		    return false;
+		}
+	
 	public ArrayList<User> GetAllUserData() {
 		ArrayList<User> user = new ArrayList<User>();
 		String query = "SELECT * FROM Users WHERE UserRole = 'Customer'";
