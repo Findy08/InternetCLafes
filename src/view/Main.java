@@ -155,17 +155,12 @@ public class Main extends Application {
 
     private VBox createLoginRoot(Stage primaryStage) {
         VBox loginRoot = new VBox();
-        
-//        GridPane form = createUserForm(table);
-        
+
         loginRoot.setSpacing(10);
         loginRoot.setPadding(new Insets(20));
 
         Label loginLbl = new Label("Login");
         loginLbl.setFont(Font.font("Arial", FontWeight.BOLD, 16));
-        
-//        Label registerLbl = new Label("Register");
-//        registerLbl.setFont(Font.font("Arial", FontWeight.BOLD, 16));
 
         TextField usernameInput = new TextField();
         usernameInput.setPromptText("Username");
@@ -174,23 +169,82 @@ public class Main extends Application {
         passwordInput.setPromptText("Password");
 
         Button loginBtn = new Button("Login");
-        
+
         loginBtn.setOnAction(event -> {
             String username = usernameInput.getText();
             String password = passwordInput.getText();
 
             if (controller.login(username, password)) {
-            	primaryStage.setScene(createHomepageScene());
+                primaryStage.setScene(createHomepageScene());
             } else {
-            	showAlert("Input Error", "Incorrect username or password!", Alert.AlertType.ERROR);
-
+                showAlert("Input Error", "Incorrect username or password!", Alert.AlertType.ERROR);
             }
         });
 
-        loginRoot.getChildren().addAll(loginLbl, usernameInput, passwordInput, loginBtn);
+        Button registerBtn = new Button("Register");
+        registerBtn.setOnAction(event -> {
+            primaryStage.setScene(createRegisterScene(primaryStage));
+        });
+
+        loginRoot.getChildren().addAll(loginLbl, usernameInput, passwordInput, loginBtn, registerBtn);
 
         return loginRoot;
     }
+
+    private Scene createRegisterScene(Stage primaryStage) {
+        VBox registerRoot = new VBox();
+
+        registerRoot.setSpacing(10);
+        registerRoot.setPadding(new Insets(20));
+
+        Label registerLbl = new Label("Register");
+        registerLbl.setFont(Font.font("Arial", FontWeight.BOLD, 16));
+
+        TextField usernameInput = new TextField();
+        usernameInput.setPromptText("Username");
+
+        PasswordField passwordInput = new PasswordField();
+        passwordInput.setPromptText("Password");
+
+        PasswordField confirmPasswordInput = new PasswordField();
+        confirmPasswordInput.setPromptText("Confirm Password");
+
+        TextField ageInput = new TextField();
+        ageInput.setPromptText("Age");
+
+        Button registerBtn = new Button("Register");
+
+        registerBtn.setOnAction(event -> {
+            String username = usernameInput.getText();
+            String password = passwordInput.getText();
+            String confirmPassword = confirmPasswordInput.getText();
+
+            try {
+                Integer age = Integer.parseInt(ageInput.getText());
+
+                // Perform registration
+                controller.AddNewUser(username, confirmPassword, age);
+                showAlert("Registration Successful", "Account registered successfully!", Alert.AlertType.INFORMATION);
+
+                // Switch back to login scene
+                primaryStage.setScene(createLoginScene(primaryStage));
+
+            } catch (NumberFormatException e) {
+                showAlert("Input Error", "Invalid age format. Please provide a valid age.", Alert.AlertType.ERROR);
+            }
+        });
+
+        Button backBtn = new Button("Back to Login");
+        backBtn.setOnAction(event -> {
+            primaryStage.setScene(createLoginScene(primaryStage));
+        });
+
+        registerRoot.getChildren().addAll(registerLbl, usernameInput, passwordInput,
+                confirmPasswordInput, ageInput, registerBtn, backBtn);
+
+        return new Scene(registerRoot, 400, 300);
+    }
+
 
     private Scene createHomepageScene() {
         VBox root = new VBox();

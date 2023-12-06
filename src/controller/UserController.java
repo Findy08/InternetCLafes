@@ -48,7 +48,7 @@ public class UserController {
 
 		    return false;
 		}
-	
+
 	public ArrayList<User> GetAllUserData() {
 		ArrayList<User> user = new ArrayList<User>();
 		String query = "SELECT * FROM Users WHERE UserRole = 'Customer'";
