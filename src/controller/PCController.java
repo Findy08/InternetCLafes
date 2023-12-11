@@ -40,9 +40,9 @@ public class PCController {
 		return pc;
 	}
 	
-	public PC GetAllPCData(Integer PcID) {
+	public PC GetPCDetail(Integer PcID) {
 		PC pc = new PC();
-		String query = "SELECT * FROM Users WHERE PC_ID = ?";
+		String query = "SELECT * FROM PC WHERE PC_ID = ?";
 		try(Connection connection = Database.getDB().getConnection()){
 			PreparedStatement ps = connection.prepareStatement(query);
 			ps.setInt(1, PcID);
