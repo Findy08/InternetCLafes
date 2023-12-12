@@ -48,12 +48,22 @@ public class UserController {
 	}
 	
 	private boolean isAlphaNumeric(String str) {
+	    boolean hasLetter = false;
+	    boolean hasDigit = false;
+
 	    for (char c : str.toCharArray()) {
-	        if (!Character.isLetterOrDigit(c)) {
-	            return false;
+	        if (Character.isLetter(c)) {
+	            hasLetter = true;
+	        } else if (Character.isDigit(c)) {
+	            hasDigit = true;
+	        }
+
+	        if (hasLetter && hasDigit) {
+	            break; //kalo udh ketemu atleast 1 kombinasi lgsg break dari loop
 	        }
 	    }
-	    return true;
+
+	    return hasLetter && hasDigit; //harus kombinasi
 	}
 
 	private boolean isUnique(String username) {
