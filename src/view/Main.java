@@ -222,11 +222,9 @@ public class Main extends Application {
             try {
                 Integer age = Integer.parseInt(ageInput.getText());
 
-                // Perform registration
                 controller.AddNewUser(username, confirmPassword, age);
                 showAlert("Registration Successful", "Account registered successfully!", Alert.AlertType.INFORMATION);
 
-                // Switch back to login scene
                 primaryStage.setScene(createLoginScene(primaryStage));
 
             } catch (NumberFormatException e) {

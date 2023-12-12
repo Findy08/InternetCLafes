@@ -40,7 +40,7 @@ public class ReportController {
 				String role = resultSet.getString("UserRole");
 				Integer pcid = resultSet.getInt("PC_ID");
 				String note = resultSet.getString("ReportNote");
-				String date = resultSet.getDate("ReportDate").toString();
+				Date date = resultSet.getDate("ReportDate");
 				r.add(new Report(id, pcid, role, note, date));
 			}
 		} catch (SQLException e) {

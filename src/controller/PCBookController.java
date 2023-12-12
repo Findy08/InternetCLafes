@@ -33,7 +33,7 @@ public class PCBookController {
         }
     }
 	
-	public void bookPC(int userId, int pcId, Date bookedDate) {
+	public void AddNewBook(Integer pcId, Integer userId, Date bookedDate) {
 		boolean pcAvailable = isAvailable(pcId, bookedDate);
 		
         if (pcAvailable) {
@@ -51,5 +51,17 @@ public class PCBookController {
             }
         } else return;
     }
+	
+	public void DeleteBookData(Integer BookID) {
+	    String query = "DELETE FROM PCBOOK WHERE BookID = ?";
+	    try (Connection connection = Database.getDB().getConnection();
+	         PreparedStatement ps = connection.prepareStatement(query)) {
+	        ps.setInt(1, BookID); 
+	        ps.executeUpdate();
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	}
+
 
 }

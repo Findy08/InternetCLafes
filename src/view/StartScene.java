@@ -14,6 +14,7 @@ public class StartScene {
 		GridPane form = new GridPane();
         form.setVgap(20);
         form.setHgap(10);
+		return form;
         
 //        reg.setOnAction(new EventHandler<ActionEvent>() {
 //            @Override
