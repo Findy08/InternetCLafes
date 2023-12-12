@@ -137,5 +137,21 @@ public class UserController {
 		}
 		return id;
 	}
+	
+	public String GetName(Integer id) {
+		String name = null;
+		String query = "SELECT UserName FROM Users WHERE UserID = ?";
+		try(Connection connection = Database.getDB().getConnection()){
+			PreparedStatement ps = connection.prepareStatement(query);
+			ps.setInt(1, id);
+			ResultSet resultSet = ps.executeQuery();
+			if(resultSet.next()) {
+				name = resultSet.getString("UserName");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return name;
+	}
 
 }

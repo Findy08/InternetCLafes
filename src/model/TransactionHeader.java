@@ -1,9 +1,12 @@
 package model;
 
+import java.sql.Date;
+
 public class TransactionHeader {
 	
 	private Integer TransactionID, StaffID;
-	private String StaffName, TransactionDate;
+	private String StaffName;
+	private Date TransactionDate;
 
 	public Integer getTransactionID() {
 		return TransactionID;
@@ -32,15 +35,15 @@ public class TransactionHeader {
 	}
 
 
-	public String getTransactionDate() {
+	public Date getTransactionDate() {
 		return TransactionDate;
 	}
 
-	public void setTransactionDate(String transactionDate) {
+	public void setTransactionDate(Date transactionDate) {
 		TransactionDate = transactionDate;
 	}
 
-	public TransactionHeader(Integer transactionID, Integer staffID, String staffName, String transactionDate) {
+	public TransactionHeader(Integer transactionID, Integer staffID, String staffName, Date transactionDate) {
 		super();
 		TransactionID = transactionID;
 		StaffID = staffID;

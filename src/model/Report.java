@@ -1,11 +1,14 @@
 package model;
 
+import java.sql.Date;
+
 public class Report {
 	
 	private Integer Report_ID, PC_ID;
-	private String UserRole, ReportNote, ReportDate;
+	private String UserRole, ReportNote;
+	private Date ReportDate;
 
-	public Report(Integer report_ID, Integer pC_ID, String userRole, String reportNote, String reportDate) {
+	public Report(Integer report_ID, Integer pC_ID, String userRole, String reportNote, Date reportDate) {
 		super();
 		Report_ID = report_ID;
 		PC_ID = pC_ID;
@@ -50,11 +53,11 @@ public class Report {
 		ReportNote = reportNote;
 	}
 
-	public String getReportDate() {
+	public Date getReportDate() {
 		return ReportDate;
 	}
 
-	public void setReportDate(String reportDate) {
+	public void setReportDate(Date reportDate) {
 		ReportDate = reportDate;
 	}
 

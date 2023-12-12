@@ -1,6 +1,7 @@
 package controller;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,7 +17,7 @@ public class ReportController {
 		r.setUserRole(UserRole);
 		r.setPC_ID(PcID);
 		r.setReportNote(ReportNote);
-		String query = "INSERT INTO Report(UserRole, PcID, ReportNote, ReportDate) VALUES (?, ?, ?, GETDATE())";
+		String query = "INSERT INTO Report(UserRole, PcID, ReportNote, ReportDate) VALUES (?, ?, ?, NOW())";
 		try(Connection connection = Database.getDB().getConnection();
 				PreparedStatement ps = connection.prepareStatement(query)){
 					ps.setString(1, r.getUserRole());
