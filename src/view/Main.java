@@ -174,11 +174,9 @@ public class Main extends Application {
             String username = usernameInput.getText();
             String password = passwordInput.getText();
 
-            if (controller.login(username, password)) {
+            if (controller.validateLogin(username, password)) {
                 primaryStage.setScene(createHomepageScene());
-            } else {
-                showAlert("Input Error", "Incorrect username or password!", Alert.AlertType.ERROR);
-            }
+            } 
         });
 
         Button registerBtn = new Button("Register");
@@ -218,14 +216,16 @@ public class Main extends Application {
             String username = usernameInput.getText();
             String password = passwordInput.getText();
             String confirmPassword = confirmPasswordInput.getText();
-
+            
             try {
                 Integer age = Integer.parseInt(ageInput.getText());
 
-                controller.AddNewUser(username, confirmPassword, age);
-                showAlert("Registration Successful", "Account registered successfully!", Alert.AlertType.INFORMATION);
+                if(controller.validateRegister(username, password, confirmPassword, age)) {
+                	controller.AddNewUser(username, confirmPassword, age);
+                    showAlert("Registration Successful", "Account registered successfully!", Alert.AlertType.INFORMATION);
 
-                primaryStage.setScene(createLoginScene(primaryStage));
+                    primaryStage.setScene(createLoginScene(primaryStage));
+                }
 
             } catch (NumberFormatException e) {
                 showAlert("Input Error", "Invalid age format. Please provide a valid age.", Alert.AlertType.ERROR);

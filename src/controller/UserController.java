@@ -7,10 +7,125 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import database.Database;
+import javafx.scene.control.Alert;
 import model.User;
 
 public class UserController {
+	
+	//validasi register
+	public boolean validateRegister(String username, String password, String confirmPassword, Integer age) {
+	    if (username.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+	        showAlert("Input Error", "Please fill in all fields.", Alert.AlertType.ERROR);
+	        return false;
+	    }
 
+	    if (username.length() < 7) {
+	        showAlert("Input Error", "Username must be at least 7 characters long.", Alert.AlertType.ERROR);
+	        return false;
+	    }
+
+	    if (!password.equals(confirmPassword)) {
+	        showAlert("Input Error", "Password have to match with confirm password.", Alert.AlertType.ERROR);
+	        return false;
+	    }
+
+	    if (age < 13 || age > 65) {
+	        showAlert("Input Error", "Age must be between 13 - 65 (inclusive)", Alert.AlertType.ERROR);
+	        return false;
+	    }
+
+	    if (!isUnique(username)) {
+	        showAlert("Input Error", "Username is already taken.", Alert.AlertType.ERROR);
+	        return false;
+	    }
+
+	    if (!isAlphaNumeric(password)) {
+	        showAlert("Input Error", "Password must contain alpha numeric characters.", Alert.AlertType.ERROR);
+	        return false;
+	    }
+
+	    return true;
+	}
+	
+	private boolean isAlphaNumeric(String str) {
+	    for (char c : str.toCharArray()) {
+	        if (!Character.isLetterOrDigit(c)) {
+	            return false;
+	        }
+	    }
+	    return true;
+	}
+
+	private boolean isUnique(String username) {
+	    String query = "SELECT COUNT(*) FROM Users WHERE UserName = ?";
+	    try (Connection connection = Database.getDB().getConnection();
+	         PreparedStatement ps = connection.prepareStatement(query)) {
+	        ps.setString(1, username);
+
+	        ResultSet resultSet = ps.executeQuery();
+	        if (resultSet.next()) {
+	            int count = resultSet.getInt(1);
+	            return count == 0; // kalo 0 artinya username udah unique, ntr di return true sbg hasil
+	        }
+	        
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	    return false;
+	}
+
+	//validasi login
+	public boolean validateLogin(String username, String password) {
+	    if (username.isEmpty() || password.isEmpty()) {
+	        showAlert("Input Error", "Please fill all fields", Alert.AlertType.ERROR);
+	        return false;
+	    }
+
+	    if (!usernameExist(username)) {
+	        showAlert("Login Error", "Username invalid (does not exist).", Alert.AlertType.ERROR);
+	        return false;
+	    }
+
+	    if (!passwordMatch(username, password)) {
+	        showAlert("Login Error", "Incorrect password.", Alert.AlertType.ERROR);
+	        return false;
+	    }
+
+	    return true;
+	}
+
+	private boolean usernameExist(String username) {
+	    String query = "SELECT * FROM Users WHERE UserName = ?";
+	    try (Connection connection = Database.getDB().getConnection();
+	         PreparedStatement ps = connection.prepareStatement(query)) {
+	        ps.setString(1, username);
+
+	        ResultSet rs = ps.executeQuery();
+	        return rs.next(); 
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+
+	    return false; 
+	}
+
+	private boolean passwordMatch(String username, String password) {
+	    String query = "SELECT * FROM Users WHERE UserName = ? AND UserPassword = ?";
+	    try (Connection connection = Database.getDB().getConnection();
+	         PreparedStatement ps = connection.prepareStatement(query)) {
+	        ps.setString(1, username);
+	        ps.setString(2, password);
+
+	        ResultSet rs = ps.executeQuery();
+	        return rs.next(); 
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+
+	    return false; 
+	}
+
+	
 	public void AddNewUser(String username, String password, Integer age) {
 		User u = new User();
 		u.setUserName(username);
@@ -30,24 +145,24 @@ public class UserController {
 	}
 	
 	//login
-		public boolean login(String username, String password) {
-		    String query = "SELECT * FROM Users WHERE UserName = ? AND UserPassword = ?";
-		    
-		    try (Connection connection = Database.getDB().getConnection();
-		         PreparedStatement ps = connection.prepareStatement(query)) {
-		        ps.setString(1, username);
-		        ps.setString(2, password);
-
-		        ResultSet rs = ps.executeQuery();
-	            if (rs.next()) {
-	                return true;
-	            }
-		    } catch (SQLException e) {
-		        e.printStackTrace();
-		    }
-
-		    return false;
-		}
+//	public boolean login(String username, String password) {
+//	    String query = "SELECT * FROM Users WHERE UserName = ? AND UserPassword = ?";
+//	    
+//	    try (Connection connection = Database.getDB().getConnection();
+//	         PreparedStatement ps = connection.prepareStatement(query)) {
+//	        ps.setString(1, username);
+//	        ps.setString(2, password);
+//
+//	        ResultSet rs = ps.executeQuery();
+//            if (rs.next()) {
+//                return true;
+//            }
+//	    } catch (SQLException e) {
+//	        e.printStackTrace();
+//	    }
+//
+//	    return false;
+//	}
 
 	public ArrayList<User> GetAllUserData() {
 		ArrayList<User> user = new ArrayList<User>();
@@ -153,5 +268,13 @@ public class UserController {
 		}
 		return name;
 	}
+	
+	private void showAlert(String title, String message, Alert.AlertType alertType) {
+        Alert alert = new Alert(alertType);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
 
 }
