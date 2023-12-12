@@ -1,16 +1,21 @@
 package model;
 
+import java.sql.Date;
+
 public class PCBook {
 	
 	private Integer BookID, PC_ID, UserID;
-	private String BookedDate;
+	private Date BookedDate;
 	
-	public PCBook(Integer bookID, Integer pC_ID, Integer userID, String bookedDate) {
+	public PCBook(Integer bookID, Integer pC_ID, Integer userID, Date bookedDate) {
 		super();
 		BookID = bookID;
 		PC_ID = pC_ID;
 		UserID = userID;
 		BookedDate = bookedDate;
+	}
+	public PCBook() {
+		
 	}
 	public Integer getBookID() {
 		return BookID;
@@ -30,10 +35,10 @@ public class PCBook {
 	public void setUserID(Integer userID) {
 		UserID = userID;
 	}
-	public String getBookedDate() {
+	public Date getBookedDate() {
 		return BookedDate;
 	}
-	public void setBookedDate(String bookedDate) {
+	public void setBookedDate(Date bookedDate) {
 		BookedDate = bookedDate;
 	}
 
