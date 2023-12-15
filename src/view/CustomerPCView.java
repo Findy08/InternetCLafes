@@ -22,7 +22,7 @@ public class CustomerPCView {
 	
 	private Stage primaryStage;
 	private TableView<PC> table;
-	private TextField idInput, nameInput;
+	private TextField idInput, condInput;
 	private Integer uid;
 	private Button historyButton, bookButton, reportButton;
 
@@ -117,12 +117,12 @@ public class CustomerPCView {
 		this.idInput = idInput;
 	}
 
-	public TextField getNameInput() {
-		return nameInput;
+	public TextField getCondInput() {
+		return condInput;
 	}
 
-	public void setNameInput(TextField nameInput) {
-		this.nameInput = nameInput;
+	public void setCondInput(TextField condInput) {
+		this.condInput = condInput;
 	}
 
 	public Integer getUid() {

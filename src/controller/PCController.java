@@ -11,6 +11,7 @@ import database.Database;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import model.PC;
+import view.AdminPCUpdateView;
 import view.AdminPCView;
 import view.CustomerPCView;
 import view.HistoryView;
@@ -20,6 +21,7 @@ public class PCController {
 	
 	private CustomerPCView customerPCView;
 	private AdminPCView adminPCView;
+	private AdminPCUpdateView adminPCUpdateView;
 	private Integer uid;
 	private Stage primaryStage;
 	
@@ -65,33 +67,79 @@ public class PCController {
 	
 	public void initializeAdminHandler() {
 		adminPCView.getAddButton().setOnAction(event -> {
-			primaryStage = customerPCView.getPrimaryStage();
-    		ReportView custView = new ReportView(primaryStage, uid);
-    		ReportController r = new ReportController(custView, uid);
+			try {
+				String id = adminPCView.getIdInput().getText();
+                AddNewPC(Integer.parseInt(id));
+                loadTableDataAdmin();
+            } catch(RuntimeException e) {
+            	showAlert("Input PC ID", "Please input new PC ID", Alert.AlertType.ERROR);
+            }
 		});
 		
 		adminPCView.getUpdateButton().setOnAction(event -> {
-			primaryStage = customerPCView.getPrimaryStage();
-    		HistoryView custView = new HistoryView(primaryStage, uid);
-    		TransactionController r = new TransactionController(custView, uid);
+			primaryStage = adminPCView.getPrimaryStage();
+    		AdminPCUpdateView apc = new AdminPCUpdateView(primaryStage, uid);
+    		PCController p = new PCController(apc, uid);
 		});
 
 		adminPCView.getDeleteButton().setOnAction(event -> {
-			PC selectedPC = customerPCView.getTable().getSelectionModel().getSelectedItem();
-            if (selectedPC != null) {
-            	long millis=System.currentTimeMillis();  
-        	    java.sql.Date date = new java.sql.Date(millis);     
-            	PCBookController pb = new PCBookController();
-                pb.AddNewBook(selectedPC.getPC_ID(), uid, date);
+			try {
+				String id = adminPCView.getIdInput().getText();
+                DeletePC(Integer.parseInt(id));
+                loadTableDataAdmin();
+            } catch(RuntimeException e) {
+            	showAlert("Input PC ID", "Please input new PC ID", Alert.AlertType.ERROR);
             }
         });
+	}
+	
+	public PCController(AdminPCUpdateView adminPCUpdateView, Integer uid) {
+		this.adminPCUpdateView = adminPCUpdateView;
+		this.uid = uid;
+		initializeAdminUpdateHandler();
+		setupTableSelectionListenerAdminUpdate();
+		loadTableDataAdminUpdate();
+	}
+	
+	public void initializeAdminUpdateHandler() {
+
+		adminPCUpdateView.getUpdateButton().setOnAction(event -> {
+//			PC selectedPC = adminPCUpdateView.getTable().getSelectionModel().getSelectedItem();
+            try {
+            	PC selectedPC = adminPCUpdateView.getTable().getSelectionModel().getSelectedItem();
+                UpdatePCCondition(Integer.parseInt(adminPCUpdateView.getIdInput().getText()), adminPCUpdateView.getCondText().getText().toString());
+                loadTableDataAdminUpdate();
+            } catch(RuntimeException e) {
+            	showAlert("Input All Fields", "Please input all fields", Alert.AlertType.ERROR);
+            }
+        });
+		
+		adminPCUpdateView.getBackButton().setOnAction(event -> {
+			primaryStage = adminPCUpdateView.getPrimaryStage();
+    		AdminPCView apc = new AdminPCView(primaryStage, uid);
+    		PCController p = new PCController(apc, uid);
+		});
+	}
+	
+	void loadTableDataAdminUpdate() {
+		ArrayList<PC> pc = GetAllPCData();
+		adminPCUpdateView.getTable().getItems().setAll(pc);
+	}
+	
+	private void setupTableSelectionListenerAdminUpdate() {
+		adminPCUpdateView.getTable().getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection)->{
+			if(newSelection != null) {
+				adminPCUpdateView.getIdInput();
+				adminPCUpdateView.getCondInput();	
+			}
+		});
 	}
 
 	private void setupTableSelectionListenerCustomer() {
 		customerPCView.getTable().getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection)->{
 			if(newSelection != null) {
 				customerPCView.getIdInput();
-				customerPCView.getNameInput();	
+				customerPCView.getCondInput();	
 			}
 		});
 	}
@@ -105,7 +153,7 @@ public class PCController {
 		adminPCView.getTable().getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection)->{
 			if(newSelection != null) {
 				adminPCView.getIdInput();
-				adminPCView.getNameInput();	
+				adminPCView.getCondInput();	
 			}
 		});
 	}
@@ -191,9 +239,14 @@ public class PCController {
 	        showAlert("Invalid Selection", "Please choose a PC.", Alert.AlertType.ERROR);
 	        return;
 	    }
+	    
+	    if(IsExist(PcID)== false) {
+	    	showAlert("Invalid PC ID", "Please input an existing PC ID.", Alert.AlertType.ERROR);
+	    }
 
 	    ArrayList<String> validConditions = new ArrayList<>(Arrays.asList("Usable", "Maintenance", "Broken"));
 	    if (!validConditions.contains(cond)) {
+	    	System.out.println(cond);
 	        showAlert("Invalid PC Condition", "Must be either 'Usable', 'Maintenance', or 'Broken'.", Alert.AlertType.ERROR);
 	        return;
 	    }

@@ -19,7 +19,7 @@ public class AdminPCView {
 	private TextField idInput, condInput;
 	private Label idLbl, condLbl;
 	private Integer uid;
-	private Button addButton, backButton, deleteButton;
+	private Button addButton, deleteButton, updateButton;
 
 	public AdminPCView(Stage primaryStage, Integer uid) {
 		this.primaryStage = primaryStage;
@@ -62,14 +62,25 @@ public class AdminPCView {
         idInput = new TextField();
 
         addButton = new Button("Add");
-        backButton = new Button("Back");
         deleteButton = new Button("Delete");
+        updateButton = new Button("Update");
+        
+        form.add(idLbl, 0, 0);
+        form.add(idInput, 1, 0);
         form.add(addButton, 0, 1);
         form.add(deleteButton, 1, 1);
-        form.add(backButton, 2, 1);
+        form.add(updateButton, 10, 1);
 
         return form;
     }
+
+	public Button getUpdateButton() {
+		return updateButton;
+	}
+
+	public void setUpdateButton(Button updateButton) {
+		this.updateButton = updateButton;
+	}
 
 	public Stage getPrimaryStage() {
 		return primaryStage;
@@ -133,14 +144,6 @@ public class AdminPCView {
 
 	public void setAddButton(Button addButton) {
 		this.addButton = addButton;
-	}
-
-	public Button getBackButton() {
-		return backButton;
-	}
-
-	public void setBackButton(Button backButton) {
-		this.backButton = backButton;
 	}
 
 	public Button getDeleteButton() {

@@ -16,7 +16,7 @@ import model.PC;
 public class AdminPCUpdateView {
 	private Stage primaryStage;
 	private TableView<PC> table;
-	private TextField idInput, condInput;
+	private TextField idInput, condInput, condText;
 	private Label idLbl, condLbl;
 	private Integer uid;
 	private Button backButton, updateButton;
@@ -61,16 +61,29 @@ public class AdminPCUpdateView {
         idLbl = new Label("PC ID");
         idInput = new TextField();
         
-        condLbl = new Label();
-		condInput = new TextField();
+        condLbl = new Label("PC Condition");
+		condText = new TextField();
 
         backButton = new Button("Back");
         updateButton = new Button("Update");
-        form.add(backButton, 0, 1);
-        form.add(updateButton, 1, 1);
+        
+        form.add(idLbl, 0, 0);
+        form.add(idInput, 1, 0);
+        form.add(condLbl, 0, 1);
+        form.add(condText, 1, 1);
+        form.add(backButton, 0, 2);
+        form.add(updateButton, 1, 2);
 
         return form;
     }
+
+	public TextField getCondText() {
+		return condText;
+	}
+
+	public void setCondText(TextField condText) {
+		this.condText = condText;
+	}
 
 	public Stage getPrimaryStage() {
 		return primaryStage;
