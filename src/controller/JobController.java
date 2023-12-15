@@ -10,6 +10,7 @@ import java.util.Arrays;
 import database.Database;
 import javafx.scene.control.Alert;
 import model.Job;
+import model.PC;
 
 public class JobController {
 
@@ -115,6 +116,33 @@ public class JobController {
 		return user;
 	}
 	
+	public PC GetPcOnWorkingList(Integer pcID) {
+	    PC pc = null;
+
+	    String query = "SELECT PC.* FROM PC " +
+	                   "INNER JOIN Job ON PC.PC_ID = Job.PC_ID " +
+	                   "WHERE Job.JobStatus = 'Working' AND PC.PC_ID = ?";
+
+	    try (Connection connection = Database.getDB().getConnection();
+	         PreparedStatement ps = connection.prepareStatement(query)) {
+
+	        ps.setInt(1, pcID);
+
+	        try (ResultSet resultSet = ps.executeQuery()) {
+	            if (resultSet.next()) {
+	                Integer retrievedPCID = resultSet.getInt("PC_ID");
+	                String condition = resultSet.getString("PC_Condition");
+	                pc = new PC(retrievedPCID, condition);
+	            }
+	        }
+
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+
+	    return pc;
+	}
+
 	public void UpdateJobStatus(Integer JobID, String JobStatus) {
 		ArrayList<String> validJobStatus = new ArrayList<>(Arrays.asList("Complete", "UnComplete"));
 		if (!validJobStatus.contains(JobStatus)) {
