@@ -8,11 +8,84 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import database.Database;
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.stage.Stage;
 import model.User;
+import view.AdminPCView;
+import view.CustomerPCView;
+import view.MainView;
+import view.RegisView;
 
 public class UserController {
 	
+	private Stage primaryStage;
+    private MainView mainView;
+    private RegisView regisView;
+    private Alert alert;
+	
+	public UserController(MainView mainView) {
+		this.mainView = mainView;
+		initializeLogin();
+	}
+	
+	public UserController(RegisView regisView) {
+        this.regisView = regisView;
+        initializeRegistration();
+    }
+	
+	public void initializeLogin() {
+		mainView.getLoginButton().setOnAction(event -> {
+			String username = mainView.getUsernameText().getText();
+            String password = mainView.getPasswordText().getText();
+            if(validateLogin(username, password) == true){
+            	if(GetRole(username).equals("Admin")) {
+            		primaryStage = mainView.getPrimaryStage();
+            		AdminPCView adminView = new AdminPCView(primaryStage, GetID(username));
+            		PCController pc = new PCController(adminView, GetID(username));
+            	}
+            	else if(GetRole(username).equals("Customer")) {
+            		primaryStage = mainView.getPrimaryStage();
+            		CustomerPCView customerView = new CustomerPCView(primaryStage, GetID(username));
+            		PCController pc = new PCController(customerView, GetID(username));
+            	}
+			}
+        });
+	}
+
+	public void initializeRegistration() {
+		regisView.getRegisButton().setOnAction(event -> {
+            String username = regisView.getUserTxt().getText();
+            String password = regisView.getPasswordTxt().getText();
+            String confirmPassword = regisView.getConfirmTxt().getText();
+            
+            try {
+                Integer age = Integer.parseInt(regisView.getAgeTxt().getText());
+
+                if(validateRegister(username, password, confirmPassword, age)) {
+                	AddNewUser(username, confirmPassword, age);
+                    showAlert("Registration Successful", "Account registered successfully!", Alert.AlertType.INFORMATION);
+
+                    primaryStage = regisView.getPrimaryStage();
+                    RegisView regisView = new RegisView(primaryStage);
+            		UserController userController = new UserController(regisView);
+//                    primaryStage.setScene(createLoginScene(primaryStage));
+                }
+
+            } catch (NumberFormatException e) {
+                showAlert("Input Error", "Invalid age format. Please provide a valid age.", Alert.AlertType.ERROR);
+            }
+        });
+	}
+
 	//validasi register
 	public boolean validateRegister(String username, String password, String confirmPassword, Integer age) {
 	    if (username.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
@@ -44,7 +117,6 @@ public class UserController {
 	        showAlert("Input Error", "Password must contain alpha numeric characters.", Alert.AlertType.ERROR);
 	        return false;
 	    }
-
 	    return true;
 	}
 	
@@ -305,6 +377,22 @@ public class UserController {
 			e.printStackTrace();
 		}
 		return name;
+	}
+	
+	public String GetRole(String user) {
+		String role = null;
+		String query = "SELECT UserRole FROM Users WHERE UserName = ?";
+		try(Connection connection = Database.getDB().getConnection()){
+			PreparedStatement ps = connection.prepareStatement(query);
+			ps.setString(1, user);
+			ResultSet resultSet = ps.executeQuery();
+			if(resultSet.next()) {
+				role = resultSet.getString("UserRole");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return role;
 	}
 	
 	private void showAlert(String title, String message, Alert.AlertType alertType) {

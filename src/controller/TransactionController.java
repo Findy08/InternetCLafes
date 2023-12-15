@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 import database.Database;
 import model.TransactionHeader;
+import view.HistoryView;
 import model.PCBook;
 import model.TransactionDetail;
 
@@ -73,6 +74,10 @@ public class TransactionController {
 //		}
 //	}
 	
+	public TransactionController(HistoryView custView, Integer uid) {
+		// TODO Auto-generated constructor stub
+	}
+
 	public void addTransaction(Integer staffID, Date transactionDate, ArrayList<PCBook> pcBooks) {
         TransactionHeader header = addTransactionHeader(staffID, transactionDate);
         if (header != null) {

@@ -26,7 +26,7 @@ import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import model.User;
 
-public class Main extends Application {
+public class MainLama extends Application {
     private TextField nameInput = new TextField();
     private TextField passwordInput = new TextField();
     private TextField ageInput = new TextField();

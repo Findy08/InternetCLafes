@@ -10,8 +10,13 @@ import java.util.ArrayList;
 import database.Database;
 import javafx.scene.control.Alert;
 import model.Report;
+import view.ReportView;
 
 public class ReportController {
+
+	public ReportController(ReportView custView, Integer uid) {
+		// TODO Auto-generated constructor stub
+	}
 
 	public void AddNewReport(String UserRole, Integer PcID, String ReportNote) {
         if (PcID == null || ReportNote == null || ReportNote.isEmpty()) {

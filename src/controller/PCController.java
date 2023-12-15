@@ -9,9 +9,111 @@ import java.util.Arrays;
 
 import database.Database;
 import javafx.scene.control.Alert;
+import javafx.stage.Stage;
 import model.PC;
+import view.AdminPCView;
+import view.CustomerPCView;
+import view.HistoryView;
+import view.ReportView;
 
 public class PCController {
+	
+	private CustomerPCView customerPCView;
+	private AdminPCView adminPCView;
+	private Integer uid;
+	private Stage primaryStage;
+	
+	public PCController(CustomerPCView customerPCView, Integer uid) {
+		this.customerPCView = customerPCView;
+		this.uid = uid;
+		initializeCustomerHandler();
+		setupTableSelectionListenerCustomer();
+		loadTableDataCustomer();
+	}
+	
+	public void initializeCustomerHandler() {
+		customerPCView.getReportButton().setOnAction(event -> {
+			primaryStage = customerPCView.getPrimaryStage();
+    		ReportView custView = new ReportView(primaryStage, uid);
+    		ReportController r = new ReportController(custView, uid);
+		});
+		
+		customerPCView.getHistoryButton().setOnAction(event -> {
+			primaryStage = customerPCView.getPrimaryStage();
+    		HistoryView custView = new HistoryView(primaryStage, uid);
+    		TransactionController r = new TransactionController(custView, uid);
+		});
+
+		customerPCView.getBookButton().setOnAction(event -> {
+			PC selectedPC = customerPCView.getTable().getSelectionModel().getSelectedItem();
+            if (selectedPC != null) {
+            	long millis=System.currentTimeMillis();  
+        	    java.sql.Date date = new java.sql.Date(millis);     
+            	PCBookController pb = new PCBookController();
+                pb.AddNewBook(selectedPC.getPC_ID(), uid, date);
+            }
+        });
+	}
+
+	public PCController(AdminPCView adminPCView, Integer uid) {
+		this.adminPCView = adminPCView;
+		this.uid = uid;
+		initializeAdminHandler();
+		setupTableSelectionListenerAdmin();
+		loadTableDataAdmin();
+	}
+	
+	public void initializeAdminHandler() {
+		adminPCView.getAddButton().setOnAction(event -> {
+			primaryStage = customerPCView.getPrimaryStage();
+    		ReportView custView = new ReportView(primaryStage, uid);
+    		ReportController r = new ReportController(custView, uid);
+		});
+		
+		adminPCView.getUpdateButton().setOnAction(event -> {
+			primaryStage = customerPCView.getPrimaryStage();
+    		HistoryView custView = new HistoryView(primaryStage, uid);
+    		TransactionController r = new TransactionController(custView, uid);
+		});
+
+		adminPCView.getDeleteButton().setOnAction(event -> {
+			PC selectedPC = customerPCView.getTable().getSelectionModel().getSelectedItem();
+            if (selectedPC != null) {
+            	long millis=System.currentTimeMillis();  
+        	    java.sql.Date date = new java.sql.Date(millis);     
+            	PCBookController pb = new PCBookController();
+                pb.AddNewBook(selectedPC.getPC_ID(), uid, date);
+            }
+        });
+	}
+
+	private void setupTableSelectionListenerCustomer() {
+		customerPCView.getTable().getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection)->{
+			if(newSelection != null) {
+				customerPCView.getIdInput();
+				customerPCView.getNameInput();	
+			}
+		});
+	}
+	
+	void loadTableDataAdmin() {
+		ArrayList<PC> pc = GetAllPCData();
+		adminPCView.getTable().getItems().setAll(pc);
+	}
+	
+	private void setupTableSelectionListenerAdmin() {
+		adminPCView.getTable().getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection)->{
+			if(newSelection != null) {
+				adminPCView.getIdInput();
+				adminPCView.getNameInput();	
+			}
+		});
+	}
+	
+	void loadTableDataCustomer() {
+		ArrayList<PC> pc = GetAllPCData();
+		customerPCView.getTable().getItems().setAll(pc);
+	}
 
 	public void AddNewPC(Integer PcID) {
 	    if (PcID == null) {
