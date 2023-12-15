@@ -37,11 +37,16 @@ public class UserController {
 		initializeLogin();
 	}
 	
+	
 	public UserController(RegisView regisView) {
         this.regisView = regisView;
         initializeRegistration();
     }
 	
+	public UserController() {
+		// TODO Auto-generated constructor stub
+	}
+
 	public void initializeLogin() {
 		mainView.getLoginButton().setOnAction(event -> {
 			String username = mainView.getUsernameText().getText();
