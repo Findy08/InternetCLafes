@@ -8,25 +8,36 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import database.Database;
+import javafx.scene.control.Alert;
 import model.Report;
 
 public class ReportController {
 
 	public void AddNewReport(String UserRole, Integer PcID, String ReportNote) {
-		Report r = new Report();
-		r.setUserRole(UserRole);
-		r.setPC_ID(PcID);
-		r.setReportNote(ReportNote);
-		String query = "INSERT INTO Report(UserRole, PcID, ReportNote, ReportDate) VALUES (?, ?, ?, NOW())";
-		try(Connection connection = Database.getDB().getConnection();
-				PreparedStatement ps = connection.prepareStatement(query)){
-					ps.setString(1, r.getUserRole());
-					ps.setInt(2, r.getPC_ID());
-					ps.setString(3, r.getReportNote());
-					ps.executeUpdate();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+        if (PcID == null || ReportNote == null || ReportNote.isEmpty()) {
+        	ShowAlert("Input can't be empty", Alert.AlertType.ERROR);
+            return;
+        }
+        if (!IsPCExists(PcID)) {
+        	ShowAlert("PC with ID " + PcID + " does not exist", Alert.AlertType.ERROR);
+            return;
+        }
+        Report r = new Report();
+        r.setUserRole(UserRole);
+        r.setPC_ID(PcID);
+        r.setReportNote(ReportNote);
+
+        String query = "INSERT INTO Report(UserRole, PcID, ReportNote, ReportDate) VALUES (?, ?, ?, NOW())";
+
+        try (Connection connection = Database.getDB().getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setString(1, r.getUserRole());
+            ps.setInt(2, r.getPC_ID());
+            ps.setString(3, r.getReportNote());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 	}
 	
 	public ArrayList<Report> GetAllUserData() {
@@ -48,4 +59,30 @@ public class ReportController {
 		}
 		return r;
 	}
+	
+	private void ShowAlert(String message, Alert.AlertType alertType) {
+        Alert alert = new Alert(alertType);
+        alert.setTitle("PC Booking System");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+	private boolean IsPCExists(Integer pcID) {
+	    String query = "SELECT COUNT(*) FROM PC WHERE PC_ID = ?";
+	    try (Connection connection = Database.getDB().getConnection();
+	         PreparedStatement ps = connection.prepareStatement(query)) {
+	        ps.setInt(1, pcID);
+	        try (ResultSet rs = ps.executeQuery()) {
+	            if (rs.next()) {
+	                int count = rs.getInt(1);
+	                return count > 0;
+	            }
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	    return false; 
+	}
+
 }
