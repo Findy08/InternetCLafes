@@ -96,8 +96,18 @@ public class PCBookController {
 	}
 
 	public void AssignUserToNewPC(Integer bookID, Integer newPCID) {
-	    String query = "UPDATE PCBook SET PC_ID = ? WHERE BookID = ?";
+		if (newPCID == null) {
+	        ShowAlert("PC ID must be filled.", AlertType.ERROR);
+	        return;
+	    }
+
+	    Date chosenDate = GetBookedDate(bookID);
+	    if (!IsAvailable(newPCID, chosenDate)) {
+	        ShowAlert("PC with ID " + newPCID + " is already booked on the chosen date of " + chosenDate, AlertType.WARNING);
+	        return;
+	    }
 	    
+	    String query = "UPDATE PCBook SET PC_ID = ? WHERE BookID = ?";
 	    try (Connection connection = Database.getDB().getConnection();
 	         PreparedStatement ps = connection.prepareStatement(query)) {
 	        ps.setInt(1, newPCID);
@@ -106,6 +116,23 @@ public class PCBookController {
 	    } catch (SQLException e) {
 	        e.printStackTrace();
 	    }
+	}
+	
+	private Date GetBookedDate(Integer bookID) {
+	    String query = "SELECT BookedDate FROM PCBook WHERE BookID = ?";
+
+	    try (Connection connection = Database.getDB().getConnection();
+	         PreparedStatement ps = connection.prepareStatement(query)) {
+	        ps.setInt(1, bookID);
+	        try (ResultSet rs = ps.executeQuery()) {
+	            if (rs.next()) {
+	                return rs.getDate("BookedDate");
+	            }
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	    return null;
 	}
 	
 	public PCBook GetPCBookedDetail(Integer bookID) {
