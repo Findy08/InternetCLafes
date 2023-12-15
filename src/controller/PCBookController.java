@@ -56,16 +56,21 @@ public class PCBookController {
         }
     }
 	
-	public void DeleteBookData(Integer BookID) {
-	    String query = "DELETE FROM PCBOOK WHERE BookID = ?";
-	    try (Connection connection = Database.getDB().getConnection();
-	         PreparedStatement ps = connection.prepareStatement(query)) {
-	        ps.setInt(1, BookID); 
-	        ps.executeUpdate();
-	    } catch (SQLException e) {
-	        e.printStackTrace();
+    public void DeleteBookData(Integer bookID, Date chosenDate) {
+    	if (chosenDate == null) {
+			ShowAlert("Date must be selected", AlertType.WARNING);
+	        return;
 	    }
-	}
+        String query = "DELETE FROM PCBOOK WHERE BookID = ? AND BookedDate = ?";
+        try (Connection connection = Database.getDB().getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, bookID);
+            ps.setDate(2, new java.sql.Date(chosenDate.getTime()));
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 	
 	public PCBook GetPCBookedData(Integer pcID, Date date) {
 	    PCBook pcbook = new PCBook();
@@ -124,13 +129,18 @@ public class PCBookController {
 	    return pcbook;
 	}
 	
-	public void FinishBook(List<PCBook> pcBookList) {
-	    String finishBookQuery = "DELETE FROM PCBook WHERE BookID = ?";
-
+	public void FinishBook(List<PCBook> pcBookList, Date chosenDate) {
+		if (chosenDate == null) {
+			ShowAlert("Date must be selected", AlertType.WARNING);
+	        return;
+	    }
+	    String finishBookQuery = "DELETE FROM PCBook WHERE BookID = ? AND BookedDate = ?";
+	    
 	    try (Connection connection = Database.getDB().getConnection();
 	         PreparedStatement ps = connection.prepareStatement(finishBookQuery)) {
 	        for (PCBook pcBook : pcBookList) {
 	            ps.setInt(1, pcBook.getBookID());
+	            ps.setDate(2, new java.sql.Date(chosenDate.getTime()));
 	            ps.executeUpdate();
 	        }
 	    } catch (SQLException e) {

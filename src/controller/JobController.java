@@ -72,11 +72,10 @@ public class JobController {
 		ps.setInt(2, JobID);
    		ps.executeUpdate();
    	} catch (SQLException e) {
-   	  e.printStackTrace();
+   		e.printStackTrace();
    	}
    	
    }
 	
-	//GetPcOnWorkingList belom, ga paham soalnya
 
 }
