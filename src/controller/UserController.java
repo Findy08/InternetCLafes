@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import database.Database;
 import javafx.scene.control.Alert;
@@ -235,17 +236,44 @@ public class UserController {
 	}
 	
 	public void ChangeUserRole(Integer UserID, String NewRole) {
-   	String query = "UPDATE Users SET UserRole = ? WHERE UserID = ?";
-   	try (Connection connection = Database.getDB().getConnection();
-   		PreparedStatement ps = connection.prepareStatement(query)){
-   		ps.setString(1, NewRole);
-		ps.setInt(2, UserID);
-   		ps.executeUpdate();
-   	} catch (SQLException e) {
-   	  e.printStackTrace();
-   	}
-   	
+		if (!IsStaffExists(UserID)) {
+	        showAlert("Invalid Selection", "Please choose a staff member.", Alert.AlertType.ERROR);
+	        return;
+	    }
+		
+		ArrayList<String> validRoles = new ArrayList<>(Arrays.asList("Admin", "Customer", "Operator", "Computer Technician"));
+		if (!validRoles.contains(NewRole)) {
+            showAlert("Invalid UserRole", "Must be either 'Admin', 'Customer', 'Operator', or 'Computer Technician'.", Alert.AlertType.ERROR);
+            return;
+        }
+
+        String query = "UPDATE Users SET UserRole = ? WHERE UserID = ?";
+        try (Connection connection = Database.getDB().getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setString(1, NewRole);
+            ps.setInt(2, UserID);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }  	
    }
+	
+	private boolean IsStaffExists(Integer userID) {
+	    String query = "SELECT COUNT(*) FROM Users WHERE UserID = ?";
+	    try (Connection connection = Database.getDB().getConnection();
+	         PreparedStatement ps = connection.prepareStatement(query)) {
+	        ps.setInt(1, userID);
+	        ResultSet rs = ps.executeQuery();
+	        if (rs.next()) {
+	            int count = rs.getInt(1);
+	            return count > 0;
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	    return false;
+	}
+
 
 	public Integer GetID(String name) {
 		Integer id = null;
