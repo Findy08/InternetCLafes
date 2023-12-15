@@ -69,7 +69,7 @@ public class StaffView {
 
         changeButton = new Button("Change User Role");
         backButton = new Button("Back");
-//        
+        
         form.add(changeButton, 0, 0);
         form.add(backButton, 1, 0);
 

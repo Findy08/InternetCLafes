@@ -9,18 +9,65 @@ import java.util.Arrays;
 
 import database.Database;
 import javafx.scene.control.Alert;
+import javafx.stage.Stage;
 import model.Job;
+import model.PC;
 import view.CompleteJobView;
 import view.TechnicianJobView;
+import view.TechnicianPCView;
 
 public class JobController {
+	
+	private Integer uid;
+	private Stage primaryStage;
+	private TechnicianJobView tech;
+	private CompleteJobView comp;
 
 	public JobController(TechnicianJobView tech, Integer uid) {
-		// TODO Auto-generated constructor stub
+		this.tech = tech;
+		this.uid = uid;
+		initializeJob();
+		loadTableDataJob();
 	}
 
-	public JobController(CompleteJobView tech, Integer uid) {
-		// TODO Auto-generated constructor stub
+	public void initializeJob() {
+
+		tech.getBackButton().setOnAction(event -> {
+			primaryStage = tech.getPrimaryStage();
+    		TechnicianPCView tech = new TechnicianPCView(primaryStage, uid);
+    		PCController p = new PCController(tech, uid);
+        });
+	}
+	
+	void loadTableDataJob() {
+		ArrayList<Job> job = GetAllJobData();
+		tech.getTable().getItems().setAll(job);
+	}
+
+	public JobController(CompleteJobView comp, Integer uid) {
+		this.comp = comp;
+		this.uid = uid;
+		initializeFinishJob();
+		loadTableDataFinishJob();
+	}
+
+	public void initializeFinishJob() {
+		comp.getCompleteButton().setOnAction(event -> {
+			Integer id = Integer.parseInt(comp.getIdInput().getText());
+			UpdateJobStatus(id, "Complete");
+			loadTableDataFinishJob();
+		});
+
+		comp.getBackButton().setOnAction(event -> {
+			primaryStage = comp.getPrimaryStage();
+    		TechnicianPCView tech = new TechnicianPCView(primaryStage, uid);
+    		PCController p = new PCController(tech, uid);
+        });
+	}
+	
+	void loadTableDataFinishJob() {
+		ArrayList<Job> job = GetUncompleteJobData();
+		comp.getTable().getItems().setAll(job);
 	}
 
 	public void AddNewJob(Integer UserID, Integer PcID) {
@@ -102,6 +149,25 @@ public class JobController {
 		return j;
 	}
 	
+	public ArrayList<Job> GetUncompleteJobData() {
+		ArrayList<Job> j = new ArrayList<Job>();
+		String query = "SELECT * FROM Job WHERE JobStatus = 'UnComplete'";
+		try(Connection connection = Database.getDB().getConnection()){
+			PreparedStatement ps = connection.prepareStatement(query);
+			ResultSet resultSet = ps.executeQuery();
+			while(resultSet.next()) {
+				Integer id = resultSet.getInt("Job_ID");
+				Integer uID = resultSet.getInt("UserID");
+				Integer pcID = resultSet.getInt("PC_ID");
+				String stat = resultSet.getString("JobStatus");
+				j.add(new Job(id, uID, pcID, stat));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return j;
+	}
+	
 	public ArrayList<Job> GetTechnicianJob(Integer UserID) {
 		if (UserID == null) {
             ShowAlert("Invalid Input", "Please provide a valid User ID.", Alert.AlertType.ERROR);
@@ -132,7 +198,7 @@ public class JobController {
 		    return;
 		}
 		
-	   	String query = "UPDATE Users SET JobStatus = ? WHERE JobID = ?";
+	   	String query = "UPDATE Job SET JobStatus = ? WHERE Job_ID = ?";
 	   	try (Connection connection = Database.getDB().getConnection();
 	   		PreparedStatement ps = connection.prepareStatement(query)){
 	   		ps.setString(1, JobStatus);
@@ -142,6 +208,33 @@ public class JobController {
 	   		e.printStackTrace();
 	   	}
    }
+	
+	public PC GetPcOnWorkingList(Integer pcID) {
+	    PC pc = null;
+
+	    String query = "SELECT PC.* FROM PC " +
+	                   "INNER JOIN Job ON PC.PC_ID = Job.PC_ID " +
+	                   "WHERE Job.JobStatus = 'UnComplete' AND PC.PC_ID = ?";
+
+	    try (Connection connection = Database.getDB().getConnection();
+	         PreparedStatement ps = connection.prepareStatement(query)) {
+
+	        ps.setInt(1, pcID);
+
+	        try (ResultSet resultSet = ps.executeQuery()) {
+	            if (resultSet.next()) {
+	                Integer retrievedPCID = resultSet.getInt("PC_ID");
+	                String condition = resultSet.getString("PC_Condition");
+	                pc = new PC(retrievedPCID, condition);
+	            }
+	        }
+
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+
+	    return pc;
+	}
 	
 	private void ShowAlert(String title, String message, Alert.AlertType alertType) {
         Alert alert = new Alert(alertType);

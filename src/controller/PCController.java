@@ -14,17 +14,16 @@ import model.PC;
 import view.AdminPCUpdateView;
 import view.AdminPCView;
 import view.AssignUserToNewPCView;
-import view.CancelBookingView;
+import view.BookPCView;
 import view.CompleteJobView;
 import view.CustomerPCView;
-import view.FinishBookingView;
 import view.HistoryView;
 import view.OperatorPCView;
 import view.ReportView;
 import view.StaffView;
 import view.TechnicianJobView;
 import view.TechnicianPCView;
-import view.ViewBookingsView;
+import view.BookingsView;
 
 public class PCController {
 	
@@ -40,7 +39,6 @@ public class PCController {
 		this.customerPCView = customerPCView;
 		this.uid = uid;
 		initializeCustomerHandler();
-		setupTableSelectionListenerCustomer();
 		loadTableDataCustomer();
 	}
 	
@@ -57,14 +55,10 @@ public class PCController {
     		TransactionController r = new TransactionController(custView, uid);
 		});
 
-		customerPCView.getBookButton().setOnAction(event -> {
-			PC selectedPC = customerPCView.getTable().getSelectionModel().getSelectedItem();
-            if (selectedPC != null) {
-            	long millis=System.currentTimeMillis();  
-        	    java.sql.Date date = new java.sql.Date(millis);     
-            	PCBookController pb = new PCBookController();
-                pb.AddNewBook(selectedPC.getPC_ID(), uid, date);
-            }
+		customerPCView.getBookButton().setOnAction(event -> {  
+			primaryStage = customerPCView.getPrimaryStage();
+			BookPCView b = new BookPCView(primaryStage, uid);
+        	PCBookController pb = new PCBookController(b, uid);
         });
 	}
 
@@ -142,15 +136,6 @@ public class PCController {
 		ArrayList<PC> pc = GetAllPCData();
 		adminPCUpdateView.getTable().getItems().setAll(pc);
 	}
-
-	private void setupTableSelectionListenerCustomer() {
-		customerPCView.getTable().getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection)->{
-			if(newSelection != null) {
-				customerPCView.getIdInput();
-				customerPCView.getCondInput();	
-			}
-		});
-	}
 	
 	void loadTableDataAdmin() {
 		ArrayList<PC> pc = GetAllPCData();
@@ -200,21 +185,9 @@ public class PCController {
 
 		operatorPCView.getViewBookButton().setOnAction(event -> {
 			primaryStage = operatorPCView.getPrimaryStage();
-    		ViewBookingsView op = new ViewBookingsView(primaryStage, uid);
+			BookingsView op = new BookingsView(primaryStage, uid);
     		PCBookController p = new PCBookController(op, uid);
         });
-		
-		operatorPCView.getCancelBookButton().setOnAction(event -> {
-			primaryStage = operatorPCView.getPrimaryStage();
-    		CancelBookingView op = new CancelBookingView(primaryStage, uid);
-    		PCBookController p = new PCBookController(op, uid);
-		});
-		
-		operatorPCView.getFinishBookButton().setOnAction(event -> {
-			primaryStage = operatorPCView.getPrimaryStage();
-    		FinishBookingView op = new FinishBookingView(primaryStage, uid);
-    		PCBookController p = new PCBookController(op, uid);
-		});
 		
 		operatorPCView.getAssignUserButton().setOnAction(event -> {
 			primaryStage = operatorPCView.getPrimaryStage();

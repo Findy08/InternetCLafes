@@ -17,6 +17,12 @@ public class PCBook {
 	public PCBook() {
 		
 	}
+	public PCBook(Integer bookID, Integer pC_ID, Date bookedDate) {
+		super();
+		BookID = bookID;
+		PC_ID = pC_ID;
+		BookedDate = bookedDate;
+	}
 	public Integer getBookID() {
 		return BookID;
 	}

@@ -16,7 +16,7 @@ public class OperatorPCView {
 	private Stage primaryStage;
 	private TableView<PC> table;
 	private Integer uid;
-	private Button viewBookButton, cancelBookButton, finishBookButton, assignUserButton;
+	private Button viewBookButton, assignUserButton;
 
 	public OperatorPCView(Stage primaryStage, Integer uid) {
 		this.primaryStage = primaryStage;
@@ -56,13 +56,9 @@ public class OperatorPCView {
         form.setHgap(10);
 
         viewBookButton = new Button("View Bookings");
-        cancelBookButton = new Button("Cancel Booking");
-        finishBookButton = new Button("Finish Booking");
         assignUserButton = new Button("Assign User to New PC");
         
         form.add(viewBookButton, 0, 0);
-        form.add(cancelBookButton, 1, 0);
-        form.add(finishBookButton, 2, 0);
         form.add(assignUserButton, 3, 0);
 
         return form;
@@ -98,22 +94,6 @@ public class OperatorPCView {
 
 	public void setViewBookButton(Button viewBookButton) {
 		this.viewBookButton = viewBookButton;
-	}
-
-	public Button getCancelBookButton() {
-		return cancelBookButton;
-	}
-
-	public void setCancelBookButton(Button cancelBookButton) {
-		this.cancelBookButton = cancelBookButton;
-	}
-
-	public Button getFinishBookButton() {
-		return finishBookButton;
-	}
-
-	public void setFinishBookButton(Button finishBookButton) {
-		this.finishBookButton = finishBookButton;
 	}
 
 	public Button getAssignUserButton() {
