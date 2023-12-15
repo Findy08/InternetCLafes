@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import database.Database;
 import javafx.scene.control.Alert;
@@ -121,7 +122,7 @@ public class JobController {
 
 	    String query = "SELECT PC.* FROM PC " +
 	                   "INNER JOIN Job ON PC.PC_ID = Job.PC_ID " +
-	                   "WHERE Job.JobStatus = 'Working' AND PC.PC_ID = ?";
+	                   "WHERE Job.JobStatus = 'UnComplete' AND PC.PC_ID = ?";
 
 	    try (Connection connection = Database.getDB().getConnection();
 	         PreparedStatement ps = connection.prepareStatement(query)) {
