@@ -29,7 +29,7 @@ public class UserView extends Application {
 	private TextField newRoleInput = new TextField();
 	private ObservableList<User> user = FXCollections.observableArrayList();
 	private TableView<User> table, table2;
-	UserController controller = new UserController(null);
+	UserController controller = new UserController();
 	Button detailButton = new Button("See Details");
 	
 	void loadAllData() {

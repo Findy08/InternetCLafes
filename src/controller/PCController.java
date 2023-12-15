@@ -13,15 +13,26 @@ import javafx.stage.Stage;
 import model.PC;
 import view.AdminPCUpdateView;
 import view.AdminPCView;
+import view.AssignUserToNewPCView;
+import view.CancelBookingView;
+import view.CompleteJobView;
 import view.CustomerPCView;
+import view.FinishBookingView;
 import view.HistoryView;
+import view.OperatorPCView;
 import view.ReportView;
+import view.StaffView;
+import view.TechnicianJobView;
+import view.TechnicianPCView;
+import view.ViewBookingsView;
 
 public class PCController {
 	
 	private CustomerPCView customerPCView;
 	private AdminPCView adminPCView;
 	private AdminPCUpdateView adminPCUpdateView;
+	private TechnicianPCView technicianPCView;
+	private OperatorPCView operatorPCView;
 	private Integer uid;
 	private Stage primaryStage;
 	
@@ -61,7 +72,6 @@ public class PCController {
 		this.adminPCView = adminPCView;
 		this.uid = uid;
 		initializeAdminHandler();
-		setupTableSelectionListenerAdmin();
 		loadTableDataAdmin();
 	}
 	
@@ -91,13 +101,21 @@ public class PCController {
             	showAlert("Input PC ID", "Please input new PC ID", Alert.AlertType.ERROR);
             }
         });
+		
+		adminPCView.getViewStaffButton().setOnAction(event -> {
+			UserController uc = new UserController();
+			if(uc.GetRole(uc.GetName(uid)).equals("Admin")){
+        		primaryStage = adminPCView.getPrimaryStage();
+        		StaffView staffView = new StaffView(primaryStage, uid);
+        		UserController u = new UserController(staffView, uid);
+            }
+		});
 	}
 	
 	public PCController(AdminPCUpdateView adminPCUpdateView, Integer uid) {
 		this.adminPCUpdateView = adminPCUpdateView;
 		this.uid = uid;
 		initializeAdminUpdateHandler();
-		setupTableSelectionListenerAdminUpdate();
 		loadTableDataAdminUpdate();
 	}
 	
@@ -106,7 +124,6 @@ public class PCController {
 		adminPCUpdateView.getUpdateButton().setOnAction(event -> {
 //			PC selectedPC = adminPCUpdateView.getTable().getSelectionModel().getSelectedItem();
             try {
-            	PC selectedPC = adminPCUpdateView.getTable().getSelectionModel().getSelectedItem();
                 UpdatePCCondition(Integer.parseInt(adminPCUpdateView.getIdInput().getText()), adminPCUpdateView.getCondText().getText().toString());
                 loadTableDataAdminUpdate();
             } catch(RuntimeException e) {
@@ -125,15 +142,6 @@ public class PCController {
 		ArrayList<PC> pc = GetAllPCData();
 		adminPCUpdateView.getTable().getItems().setAll(pc);
 	}
-	
-	private void setupTableSelectionListenerAdminUpdate() {
-		adminPCUpdateView.getTable().getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection)->{
-			if(newSelection != null) {
-				adminPCUpdateView.getIdInput();
-				adminPCUpdateView.getCondInput();	
-			}
-		});
-	}
 
 	private void setupTableSelectionListenerCustomer() {
 		customerPCView.getTable().getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection)->{
@@ -149,18 +157,75 @@ public class PCController {
 		adminPCView.getTable().getItems().setAll(pc);
 	}
 	
-	private void setupTableSelectionListenerAdmin() {
-		adminPCView.getTable().getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection)->{
-			if(newSelection != null) {
-				adminPCView.getIdInput();
-				adminPCView.getCondInput();	
-			}
-		});
-	}
-	
 	void loadTableDataCustomer() {
 		ArrayList<PC> pc = GetAllPCData();
 		customerPCView.getTable().getItems().setAll(pc);
+	}
+	
+	public PCController(TechnicianPCView technicianPCView, Integer uid) {
+		this.technicianPCView = technicianPCView;
+		this.uid = uid;
+		initializeTechnicianHandler();
+		loadTableDataTechnician();
+	}
+
+	public void initializeTechnicianHandler() {
+
+		technicianPCView.getViewJobButton().setOnAction(event -> {
+			primaryStage = technicianPCView.getPrimaryStage();
+    		TechnicianJobView tech = new TechnicianJobView(primaryStage, uid);
+    		JobController p = new JobController(tech, uid);
+        });
+		
+		technicianPCView.getFinishJobButton().setOnAction(event -> {
+			primaryStage = technicianPCView.getPrimaryStage();
+			CompleteJobView tech = new CompleteJobView(primaryStage, uid);
+			JobController p = new JobController(tech, uid);
+		});
+	}
+	
+	void loadTableDataTechnician() {
+		ArrayList<PC> pc = GetAllPCData();
+		technicianPCView.getTable().getItems().setAll(pc);
+	}
+	
+	public PCController(OperatorPCView opView, Integer uid) {
+		this.operatorPCView = opView;
+		this.uid = uid;
+		initializeOperatorHandler();
+		loadTableDataOperator();
+	}
+
+	public void initializeOperatorHandler() {
+
+		operatorPCView.getViewBookButton().setOnAction(event -> {
+			primaryStage = operatorPCView.getPrimaryStage();
+    		ViewBookingsView op = new ViewBookingsView(primaryStage, uid);
+    		PCBookController p = new PCBookController(op, uid);
+        });
+		
+		operatorPCView.getCancelBookButton().setOnAction(event -> {
+			primaryStage = operatorPCView.getPrimaryStage();
+    		CancelBookingView op = new CancelBookingView(primaryStage, uid);
+    		PCBookController p = new PCBookController(op, uid);
+		});
+		
+		operatorPCView.getFinishBookButton().setOnAction(event -> {
+			primaryStage = operatorPCView.getPrimaryStage();
+    		FinishBookingView op = new FinishBookingView(primaryStage, uid);
+    		PCBookController p = new PCBookController(op, uid);
+		});
+		
+		operatorPCView.getAssignUserButton().setOnAction(event -> {
+			primaryStage = operatorPCView.getPrimaryStage();
+    		AssignUserToNewPCView op = new AssignUserToNewPCView(primaryStage, uid);
+    		PCBookController p = new PCBookController(op, uid);
+		});
+	}
+	
+	void loadTableDataOperator() {
+		ArrayList<PC> pc = GetAllPCData();
+		operatorPCView.getTable().getItems().setAll(pc);
 	}
 
 	public void AddNewPC(Integer PcID) {

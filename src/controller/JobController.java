@@ -10,8 +10,18 @@ import java.util.Arrays;
 import database.Database;
 import javafx.scene.control.Alert;
 import model.Job;
+import view.CompleteJobView;
+import view.TechnicianJobView;
 
 public class JobController {
+
+	public JobController(TechnicianJobView tech, Integer uid) {
+		// TODO Auto-generated constructor stub
+	}
+
+	public JobController(CompleteJobView tech, Integer uid) {
+		// TODO Auto-generated constructor stub
+	}
 
 	public void AddNewJob(Integer UserID, Integer PcID) {
 		if (UserID == null || PcID == null) {

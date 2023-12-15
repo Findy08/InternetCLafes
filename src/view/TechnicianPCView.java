@@ -13,15 +13,14 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import model.PC;
 
-public class AdminPCView {
+public class TechnicianPCView {
+
 	private Stage primaryStage;
 	private TableView<PC> table;
-	private TextField idInput, condInput;
-	private Label idLbl, condLbl;
 	private Integer uid;
-	private Button addButton, deleteButton, updateButton, viewStaffButton;
+	private Button viewJobButton, finishJobButton;
 
-	public AdminPCView(Stage primaryStage, Integer uid) {
+	public TechnicianPCView(Stage primaryStage, Integer uid) {
 		this.primaryStage = primaryStage;
 		this.uid = uid;
 		VBox vbox = new VBox();
@@ -57,40 +56,15 @@ public class AdminPCView {
         GridPane form = new GridPane();
         form.setVgap(20);
         form.setHgap(10);
-        
-        idLbl = new Label("PC ID");
-        idInput = new TextField();
 
-        addButton = new Button("Add PC");
-        deleteButton = new Button("Delete PC");
-        updateButton = new Button("Update PC");
-        viewStaffButton = new Button("View All Staff");
+        viewJobButton = new Button("View Technician Job");
+        finishJobButton = new Button("Complete Job");
         
-        form.add(idLbl, 0, 0);
-        form.add(idInput, 1, 0);
-        form.add(addButton, 0, 1);
-        form.add(deleteButton, 1, 1);
-        form.add(updateButton, 10, 1);
-        form.add(viewStaffButton, 11, 1);
+        form.add(viewJobButton, 0, 0);
+        form.add(finishJobButton, 1, 0);
 
         return form;
     }
-
-	public Button getViewStaffButton() {
-		return viewStaffButton;
-	}
-
-	public void setViewStaffButton(Button viewStaffButton) {
-		this.viewStaffButton = viewStaffButton;
-	}
-
-	public Button getUpdateButton() {
-		return updateButton;
-	}
-
-	public void setUpdateButton(Button updateButton) {
-		this.updateButton = updateButton;
-	}
 
 	public Stage getPrimaryStage() {
 		return primaryStage;
@@ -108,38 +82,6 @@ public class AdminPCView {
 		this.table = table;
 	}
 
-	public TextField getIdInput() {
-		return idInput;
-	}
-
-	public void setIdInput(TextField idInput) {
-		this.idInput = idInput;
-	}
-
-	public TextField getCondInput() {
-		return condInput;
-	}
-
-	public void setCondInput(TextField condInput) {
-		this.condInput = condInput;
-	}
-
-	public Label getIdLbl() {
-		return idLbl;
-	}
-
-	public void setIdLbl(Label idLbl) {
-		this.idLbl = idLbl;
-	}
-
-	public Label getCondLbl() {
-		return condLbl;
-	}
-
-	public void setCondLbl(Label condLbl) {
-		this.condLbl = condLbl;
-	}
-
 	public Integer getUid() {
 		return uid;
 	}
@@ -148,21 +90,20 @@ public class AdminPCView {
 		this.uid = uid;
 	}
 
-	public Button getAddButton() {
-		return addButton;
+	public Button getViewJobButton() {
+		return viewJobButton;
 	}
 
-	public void setAddButton(Button addButton) {
-		this.addButton = addButton;
+	public void setViewJobButton(Button viewJobButton) {
+		this.viewJobButton = viewJobButton;
 	}
 
-	public Button getDeleteButton() {
-		return deleteButton;
+	public Button getFinishJobButton() {
+		return finishJobButton;
 	}
 
-	public void setDeleteButton(Button deleteButton) {
-		this.deleteButton = deleteButton;
+	public void setFinishJobButton(Button finishJobButton) {
+		this.finishJobButton = finishJobButton;
 	}
-
 
 }

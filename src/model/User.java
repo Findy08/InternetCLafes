@@ -15,6 +15,13 @@ public class User {
 		// TODO Auto-generated constructor stub
 	}
 
+	public User(Integer id, String name, Integer age, String role) {
+		this.UserID = id;
+		this.UserName = name;
+		this.UserAge = age;
+		this.UserRole = role;
+	}
+
 	public Integer getUserID() {
 		return UserID;
 	}

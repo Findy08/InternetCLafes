@@ -19,18 +19,28 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
+import model.PC;
 import model.User;
 import view.AdminPCView;
+import view.ChangeUserRoleView;
 import view.CustomerPCView;
 import view.MainView;
+import view.OperatorPCView;
 import view.RegisView;
+import view.StaffView;
+import view.TechnicianJobView;
+import view.TechnicianPCView;
 
 public class UserController {
 	
 	private Stage primaryStage;
     private MainView mainView;
     private RegisView regisView;
+    private StaffView staffView;
+    private ChangeUserRoleView changeStaffView;
+    private AdminPCView adminPCView;
     private Alert alert;
+    private Integer uid;
 	
 	public UserController(MainView mainView) {
 		this.mainView = mainView;
@@ -41,7 +51,64 @@ public class UserController {
         this.regisView = regisView;
         initializeRegistration();
     }
-	
+
+	public UserController(StaffView staffView, Integer uid) {
+		this.staffView = staffView;
+		this.uid = uid;
+		loadTableStaffData();
+		initializeStaff();
+	}
+
+	public void loadTableStaffData() {
+		ArrayList<User> u = GetAllStaff();
+		staffView.getTable().getItems().setAll(u);
+	}
+
+	private void initializeStaff() {
+		staffView.getChangeButton().setOnAction(event -> {
+			primaryStage = staffView.getPrimaryStage();
+			ChangeUserRoleView changeStaffView = new ChangeUserRoleView(primaryStage, uid);
+    		UserController u = new UserController(changeStaffView, uid);
+		});
+		
+		staffView.getBackButton().setOnAction(event -> {
+			primaryStage = staffView.getPrimaryStage();
+    		AdminPCView admin = new AdminPCView(primaryStage, uid);
+    		PCController u = new PCController(admin, uid);
+		});
+	}
+
+	public UserController() {
+		// TODO Auto-generated constructor stub
+	}
+
+	public UserController(ChangeUserRoleView changeStaffView, Integer uid) {
+		this.changeStaffView = changeStaffView;
+		this.uid = uid;
+		loadTableUserData();
+		initializeUser();
+	}
+
+	public void loadTableUserData() {
+		ArrayList<User> u = GetAllUserData();
+		changeStaffView.getTable().getItems().setAll(u);
+	}
+
+	private void initializeUser() {
+		changeStaffView.getChangeButton().setOnAction(event -> {
+			Integer id = Integer.parseInt(changeStaffView.getIdInput().getText());
+			String newRole = changeStaffView.getNewroleInput().getText().toString();
+			ChangeUserRole(id, newRole);
+			loadTableUserData();
+		});
+		
+		changeStaffView.getBackButton().setOnAction(event -> {
+			primaryStage = changeStaffView.getPrimaryStage();
+    		AdminPCView admin = new AdminPCView(primaryStage, uid);
+    		PCController u = new PCController(admin, uid);
+		});
+	}
+
 	public void initializeLogin() {
 		mainView.getLoginButton().setOnAction(event -> {
 			String username = mainView.getUsernameText().getText();
@@ -56,6 +123,16 @@ public class UserController {
             		primaryStage = mainView.getPrimaryStage();
             		CustomerPCView customerView = new CustomerPCView(primaryStage, GetID(username));
             		PCController pc = new PCController(customerView, GetID(username));
+            	}
+            	else if(GetRole(username).equals("Computer Technician")) {
+            		primaryStage = mainView.getPrimaryStage();
+            		TechnicianPCView techView = new TechnicianPCView(primaryStage, GetID(username));
+            		PCController pc = new PCController(techView, GetID(username));
+            	}
+            	else if(GetRole(username).equals("Operator")) {
+            		primaryStage = mainView.getPrimaryStage();
+            		OperatorPCView opView = new OperatorPCView(primaryStage, GetID(username));
+            		PCController pc = new PCController(opView, GetID(username));
             	}
 			}
         });
@@ -249,18 +326,22 @@ public class UserController {
 
 	public ArrayList<User> GetAllUserData() {
 		ArrayList<User> user = new ArrayList<User>();
-		String query = "SELECT * FROM Users WHERE UserRole = 'Customer'";
+		String query = "SELECT * FROM Users";
 		try(Connection connection = Database.getDB().getConnection()){
 			PreparedStatement ps = connection.prepareStatement(query);
 			ResultSet resultSet = ps.executeQuery();
 			while(resultSet.next()) {
+				Integer id = resultSet.getInt("UserID");
 				String name = resultSet.getString("UserName");
-				String pw = resultSet.getString("UserPassword");
 				Integer age = resultSet.getInt("UserAge");
-				user.add(new User(name, pw, age));
+				String role = resultSet.getString("UserRole");
+				user.add(new User(id, name, age, role));
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			showAlert("No Data", "There is no Staff Data", Alert.AlertType.ERROR);
+			primaryStage = staffView.getPrimaryStage();
+    		AdminPCView adminView = new AdminPCView(primaryStage, uid);
+    		PCController u = new PCController(adminView, uid);
 		}
 		return user;
 	}
@@ -291,7 +372,7 @@ public class UserController {
 	
 	public ArrayList<User> GetAllTechnician() {
 		ArrayList<User> user = new ArrayList<User>();
-		String query = "SELECT * FROM Users WHERE UserRole = 'Technician'";
+		String query = "SELECT * FROM Users WHERE UserRole = 'Computer Technician'";
 		try(Connection connection = Database.getDB().getConnection()){
 			PreparedStatement ps = connection.prepareStatement(query);
 			ResultSet resultSet = ps.executeQuery();
@@ -303,6 +384,28 @@ public class UserController {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
+		}
+		return user;
+	}
+	
+	public ArrayList<User> GetAllStaff() {
+		ArrayList<User> user = new ArrayList<User>();
+		String query = "SELECT * FROM Users WHERE UserRole = 'Computer Technician' OR UserRole = 'Admin' OR UserRole = 'Operator'";
+		try(Connection connection = Database.getDB().getConnection()){
+			PreparedStatement ps = connection.prepareStatement(query);
+			ResultSet resultSet = ps.executeQuery();
+			while(resultSet.next()) {
+				Integer id = resultSet.getInt("UserID");
+				String name = resultSet.getString("UserName");
+				Integer age = resultSet.getInt("UserAge");
+				String role = resultSet.getString("UserRole");
+				user.add(new User(id, name, age, role));
+			}
+		} catch (SQLException e) {
+			showAlert("No Data", "There is no Staff Data", Alert.AlertType.ERROR);
+			primaryStage = staffView.getPrimaryStage();
+    		AdminPCView adminView = new AdminPCView(primaryStage, uid);
+    		PCController u = new PCController(adminView, uid);
 		}
 		return user;
 	}

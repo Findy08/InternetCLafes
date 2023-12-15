@@ -13,8 +13,32 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import model.PC;
 import model.PCBook;
+import view.AssignUserToNewPCView;
+import view.CancelBookingView;
+import view.FinishBookingView;
+import view.ViewBookingsView;
 
 public class PCBookController {
+
+	public PCBookController(CancelBookingView tech, Integer uid) {
+		// TODO Auto-generated constructor stub
+	}
+
+	public PCBookController(ViewBookingsView op, Integer uid) {
+		// TODO Auto-generated constructor stub
+	}
+
+	public PCBookController(FinishBookingView op, Integer uid) {
+		// TODO Auto-generated constructor stub
+	}
+
+	public PCBookController(AssignUserToNewPCView op, Integer uid) {
+		// TODO Auto-generated constructor stub
+	}
+
+	public PCBookController() {
+		// TODO Auto-generated constructor stub
+	}
 
 	private boolean IsAvailable(int pcId, Date bookedDate) {
         String query = "SELECT * FROM PCBook WHERE PC_ID = ? AND BookedDate = ?";
