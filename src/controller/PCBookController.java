@@ -35,7 +35,7 @@ public class PCBookController {
 
     public void AddNewBook(Integer pcId, Integer userId, Date bookedDate) {
         if (bookedDate == null || pcId == null) {
-            showAlert("Invalid input parameters", AlertType.ERROR);
+        	ShowAlert("Input can't be empty", AlertType.ERROR);
             return;
         }
         boolean pcAvailable = IsAvailable(pcId, bookedDate);
@@ -47,13 +47,11 @@ public class PCBookController {
                 ps.setInt(2, userId);
                 ps.setDate(3, new java.sql.Date(bookedDate.getTime()));
                 ps.executeUpdate();
-                showAlert("PC booked successfully", AlertType.INFORMATION);
             } catch (SQLException e) {
                 e.printStackTrace();
-                showAlert("Error booking PC", AlertType.ERROR);
             }
         } else {
-            showAlert("PC is not available on the chosen date", AlertType.WARNING);
+        	ShowAlert("PC is not available on the chosen date", AlertType.WARNING);
             return;
         }
     }
@@ -133,9 +131,8 @@ public class PCBookController {
 	         PreparedStatement ps = connection.prepareStatement(finishBookQuery)) {
 	        for (PCBook pcBook : pcBookList) {
 	            ps.setInt(1, pcBook.getBookID());
-	            ps.addBatch();
+	            ps.executeUpdate();
 	        }
-	        ps.executeBatch();
 	    } catch (SQLException e) {
 	        e.printStackTrace();
 	    }
@@ -184,7 +181,7 @@ public class PCBookController {
 	    return pcBookList;
 	}
 	
-	private void showAlert(String message, AlertType alertType) {
+	private void ShowAlert(String message, AlertType alertType) {
         Alert alert = new Alert(alertType);
         alert.setTitle("PC Booking System");
         alert.setHeaderText(null);
