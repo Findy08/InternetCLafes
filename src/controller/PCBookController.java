@@ -9,12 +9,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import database.Database;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import model.PC;
 import model.PCBook;
 
 public class PCBookController {
 
-	private boolean isAvailable(int pcId, Date bookedDate) {
+	private boolean IsAvailable(int pcId, Date bookedDate) {
         String query = "SELECT * FROM PCBook WHERE PC_ID = ? AND BookedDate = ?";
 
         try (Connection connection = Database.getDB().getConnection();
@@ -23,36 +25,37 @@ public class PCBookController {
             ps.setDate(2, new java.sql.Date(bookedDate.getTime()));
 
             ResultSet rs = ps.executeQuery();
-            if(rs.next()) {
-            	return false;
-            }
-            else {
-            	return true;
-            }
-            
+            return !rs.next();  // Return true if no records found, indicating availability
+
         } catch (SQLException e) {
             e.printStackTrace();
-            return false; 
+            return false;
         }
     }
-	
-	public void AddNewBook(Integer pcId, Integer userId, Date bookedDate) {
-		boolean pcAvailable = isAvailable(pcId, bookedDate);
-		
+
+    public void AddNewBook(Integer pcId, Integer userId, Date bookedDate) {
+        if (bookedDate == null || pcId == null) {
+            showAlert("Invalid input parameters", AlertType.ERROR);
+            return;
+        }
+        boolean pcAvailable = IsAvailable(pcId, bookedDate);
         if (pcAvailable) {
             String query = "INSERT INTO PCBook(PC_ID, UserID, BookedDate) VALUES (?, ?, ?)";
-
             try (Connection connection = Database.getDB().getConnection();
                  PreparedStatement ps = connection.prepareStatement(query)) {
                 ps.setInt(1, pcId);
                 ps.setInt(2, userId);
                 ps.setDate(3, new java.sql.Date(bookedDate.getTime()));
-
                 ps.executeUpdate();
+                showAlert("PC booked successfully", AlertType.INFORMATION);
             } catch (SQLException e) {
                 e.printStackTrace();
+                showAlert("Error booking PC", AlertType.ERROR);
             }
-        } else return;
+        } else {
+            showAlert("PC is not available on the chosen date", AlertType.WARNING);
+            return;
+        }
     }
 	
 	public void DeleteBookData(Integer BookID) {
@@ -135,7 +138,6 @@ public class PCBookController {
 	        ps.executeBatch();
 	    } catch (SQLException e) {
 	        e.printStackTrace();
-	        // Handle exceptions (log, notify, etc.)
 	    }
 	}
 	
@@ -181,5 +183,13 @@ public class PCBookController {
 	    }
 	    return pcBookList;
 	}
+	
+	private void showAlert(String message, AlertType alertType) {
+        Alert alert = new Alert(alertType);
+        alert.setTitle("PC Booking System");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
 
 }
