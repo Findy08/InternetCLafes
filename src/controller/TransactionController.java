@@ -15,76 +15,17 @@ import model.TransactionDetail;
 import model.TransactionHeader;
 import view.AdminHistoryView;
 import view.AdminPCView;
+import view.AdminTransactionDetailView;
 import view.CustomerHistoryView;
 import view.CustomerPCView;
-import view.HistoryView;
-import view.OperatorPCView;
 
 public class TransactionController {
 	
 	private Stage primaryStage;
 	private CustomerHistoryView customerHistory;
 	private AdminHistoryView adminHistory;
+	AdminTransactionDetailView adminDetail;
 	private Integer uid;
-
-//	public void AddTransaction(Integer TransactionID, ArrayList<PCBook> PcBook, Integer StaffID) {
-//		TransactionHeader th = new TransactionHeader();
-//		UserController uc = new UserController();
-//		String StaffName = uc.GetName(StaffID);
-//		th.setTransactionID(TransactionID);
-//		th.setStaffID(StaffID);
-//		th.setStaffName(StaffName);
-//		String query = "INSERT INTO TransactionHeader(TransactionID, StaffID, StaffName, TransactionDate) VALUES (?, ?, ?, NOW())";
-//		try(Connection connection = Database.getDB().getConnection()){
-//			PreparedStatement ps = connection.prepareStatement(query);
-//			ps.setInt(1, th.getTransactionID());
-//			ps.setInt(1, th.getStaffID());
-//			ps.setString(1, th.getStaffName());
-//			ps.setDate(1, th.getTransactionDate());
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//		}
-//	}
-	
-//	public void AddTransactionHeader(Integer StaffID, Date transactionDate) {
-//		TransactionHeader th = new TransactionHeader();
-//		UserController uc = new UserController();
-//		String StaffName = uc.GetName(StaffID);
-//		th.setStaffID(StaffID);
-//		th.setStaffName(StaffName);
-//		th.setTransactionDate(transactionDate);
-//		String query = "INSERT INTO TransactionHeader(StaffID, StaffName, TransactionDate) VALUES (?, ?, ?, ?)";
-//		try(Connection connection = Database.getDB().getConnection()){
-//			PreparedStatement ps = connection.prepareStatement(query);
-//			ps.setInt(1, th.getStaffID());
-//			ps.setString(1, th.getStaffName());
-//			ps.setDate(1, th.getTransactionDate());
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//		}
-//	}
-//	
-//	public void AddTransactionDetail(Integer TransactionID, ArrayList<PCBook> PcBook) {
-//		for(int i=0;i<PcBook.size();i++) {
-//			TransactionDetail td = new TransactionDetail();
-//			String queryDetail = "INSERT INTO TransactionDetail(TransactionID, PC_ID, CustomerName, BookedTime) VALUES (?, ?, ?, ?)";
-//			PCBookController uc = new PCBookController();
-//			td.setTransactionID(TransactionID);
-////			Integer PC_ID = ;
-////			th.setStaffID(StaffID);
-////			th.setStaffName(StaffName);
-////			th.setTransactionDate(transactionDate);
-////			String query = "INSERT INTO TransactionHeader(StaffID, StaffName, TransactionDate) VALUES (?, ?, ?, ?)";
-////			try(Connection connection = Database.getDB().getConnection()){
-////				PreparedStatement ps = connection.prepareStatement(query);
-////				ps.setInt(1, th.getStaffID());
-////				ps.setString(1, th.getStaffName());
-////				ps.setDate(1, th.getTransactionDate());
-////			} catch (SQLException e) {
-////				e.printStackTrace();
-////			}
-//		}
-//	}
 	
 	public TransactionController(CustomerHistoryView custView, Integer uid) {
 		// TODO Auto-generated constructor stub
@@ -102,6 +43,29 @@ public class TransactionController {
 		loadAdminTableDataTransactions();
 	}
 	
+	public TransactionController(AdminTransactionDetailView custView, Integer uid, Integer TransactionID) {
+		// TODO Auto-generated constructor stub
+		this.adminDetail = custView;
+		this.uid = uid;
+		initializeAdminDetailTransactions();
+		loadAdminDetailTableDataTransactions(TransactionID);
+	}
+	
+	private void initializeAdminDetailTransactions() {
+		// TODO Auto-generated method stub
+		adminDetail.getBackButton().setOnAction(event -> {
+			primaryStage = adminDetail.getPrimaryStage();
+			AdminHistoryView ahv = new AdminHistoryView(primaryStage, uid);
+    		TransactionController tc = new TransactionController(ahv, uid);
+        });
+	}
+
+	private void loadAdminDetailTableDataTransactions(Integer TransactionID) {
+		// TODO Auto-generated method stub
+		ArrayList<TransactionDetail> td = GetAllTransactionDetail(TransactionID);
+		adminDetail.getTdTable().getItems().setAll(td);
+	}
+
 	private void loadCustomerTableDataTransactions() {
 		// TODO Auto-generated method stub
 		ArrayList<TransactionDetail> td = GetUserTransactionDetail(this.uid);
@@ -130,6 +94,14 @@ public class TransactionController {
 			primaryStage = adminHistory.getPrimaryStage();
 			AdminPCView pc = new AdminPCView(primaryStage, uid);
     		PCController p = new PCController(pc, uid);
+        });
+		
+		adminHistory.getDetailButton().setOnAction(event -> {
+			primaryStage = adminHistory.getPrimaryStage();
+			AdminTransactionDetailView atdv = new AdminTransactionDetailView(primaryStage, uid);
+			Integer inputValue = Integer.parseInt(adminHistory.getIdInput().getText());
+			System.out.println(inputValue);
+    		TransactionController tc = new TransactionController(atdv, uid, inputValue);
         });
 	}
 

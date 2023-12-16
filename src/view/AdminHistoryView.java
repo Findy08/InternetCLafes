@@ -7,9 +7,11 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
@@ -23,7 +25,9 @@ public class AdminHistoryView {
 	private TableView<TransactionHeader> thTable;
 	private TableView<TransactionDetail> tdTable;
 	private Integer uid;
-	private Button backButton;
+	private Label detailLbl;
+	private Button backButton, detailButton;
+	private TextField idInput;
 	
 	public AdminHistoryView(Stage primaryStage, Integer uid) {
 		// TODO Auto-generated constructor stub
@@ -65,6 +69,24 @@ public class AdminHistoryView {
 
 	    return table;
 	}
+	
+	private GridPane createTransactionHeaderForm(TableView<TransactionHeader> table) {
+		GridPane form = new GridPane();
+        form.setVgap(20);
+        form.setHgap(10);
+        
+        backButton = new Button("Back");
+        detailLbl = new Label("Enter Transaction ID");
+        idInput = new TextField();
+        detailButton = new Button("View Transaction Detail");
+        
+        form.add(detailLbl, 0, 0);
+        form.add(idInput, 1, 0);
+        form.add(detailButton, 2, 0);
+        form.add(backButton, 0, 1);
+
+        return form;
+	}
 
 	public Stage getPrimaryStage() {
 		return primaryStage;
@@ -90,22 +112,43 @@ public class AdminHistoryView {
 		this.uid = uid;
 	}
 
+	public final TableView<TransactionDetail> getTdTable() {
+		return tdTable;
+	}
+
+	public final void setTdTable(TableView<TransactionDetail> tdTable) {
+		this.tdTable = tdTable;
+	}
+
+	public final Label getDetailLbl() {
+		return detailLbl;
+	}
+
+	public final void setDetailLbl(Label detailLbl) {
+		this.detailLbl = detailLbl;
+	}
+
+	public final Button getDetailButton() {
+		return detailButton;
+	}
+
+	public final void setDetailButton(Button detailButton) {
+		this.detailButton = detailButton;
+	}
+
+	public final TextField getIdInput() {
+		return idInput;
+	}
+
+	public final void setIdInput(TextField idInput) {
+		this.idInput = idInput;
+	}
+
 	public Button getBackButton() {
 		return backButton;
 	}
 
 	public void setBackButton(Button backButton) {
 		this.backButton = backButton;
-	}
-
-	private GridPane createTransactionHeaderForm(TableView<TransactionHeader> table) {
-		GridPane form = new GridPane();
-        form.setVgap(20);
-        form.setHgap(10);
-        
-        backButton = new Button("Back");
-        form.add(backButton, 0, 0);
-
-        return form;
 	}
 }
