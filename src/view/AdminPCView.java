@@ -19,7 +19,7 @@ public class AdminPCView {
 	private TextField idInput, condInput;
 	private Label idLbl, condLbl;
 	private Integer uid;
-	private Button addButton, deleteButton, updateButton, viewStaffButton;
+	private Button addButton, deleteButton, updateButton, viewStaffButton, viewAllJobButton;
 
 	public AdminPCView(Stage primaryStage, Integer uid) {
 		this.primaryStage = primaryStage;
@@ -60,18 +60,25 @@ public class AdminPCView {
         
         idLbl = new Label("PC ID");
         idInput = new TextField();
+        
+        condLbl = new Label("Condition");
+        condInput = new TextField();
 
         addButton = new Button("Add PC");
         deleteButton = new Button("Delete PC");
         updateButton = new Button("Update PC");
         viewStaffButton = new Button("View All Staff");
+        viewAllJobButton = new Button("View All Job");
         
         form.add(idLbl, 0, 0);
         form.add(idInput, 1, 0);
-        form.add(addButton, 0, 1);
-        form.add(deleteButton, 1, 1);
-        form.add(updateButton, 10, 1);
-        form.add(viewStaffButton, 11, 1);
+        form.add(condLbl, 0, 1);  
+        form.add(condInput, 1, 1);  
+        form.add(addButton, 0, 2);  
+        form.add(deleteButton, 1, 2);  
+        form.add(updateButton, 10, 2);
+        form.add(viewStaffButton, 11, 2);
+        form.add(viewAllJobButton, 12, 2);
 
         return form;
     }
@@ -82,6 +89,14 @@ public class AdminPCView {
 
 	public void setViewStaffButton(Button viewStaffButton) {
 		this.viewStaffButton = viewStaffButton;
+	}
+
+	public Button getViewAllJobButton() {
+		return viewAllJobButton;
+	}
+
+	public void setViewAllJobButton(Button viewAllJobButton) {
+		this.viewAllJobButton = viewAllJobButton;
 	}
 
 	public Button getUpdateButton() {

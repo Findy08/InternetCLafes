@@ -23,6 +23,7 @@ import view.ReportView;
 import view.StaffView;
 import view.TechnicianJobView;
 import view.TechnicianPCView;
+import view.ViewAllJob;
 import view.BookingsView;
 
 public class PCController {
@@ -69,11 +70,14 @@ public class PCController {
 		loadTableDataAdmin();
 	}
 	
+	
+	
 	public void initializeAdminHandler() {
 		adminPCView.getAddButton().setOnAction(event -> {
 			try {
 				String id = adminPCView.getIdInput().getText();
-                AddNewPC(Integer.parseInt(id));
+				String condition = adminPCView.getCondInput().getText();
+                AddNewPC(Integer.parseInt(id), condition);
                 loadTableDataAdmin();
             } catch(RuntimeException e) {
             	showAlert("Input PC ID", "Please input new PC ID", Alert.AlertType.ERROR);
@@ -103,6 +107,12 @@ public class PCController {
         		StaffView staffView = new StaffView(primaryStage, uid);
         		UserController u = new UserController(staffView, uid);
             }
+		});
+		
+		adminPCView.getViewAllJobButton().setOnAction(event -> {
+			primaryStage = adminPCView.getPrimaryStage();
+    		ViewAllJob vaj = new ViewAllJob(primaryStage, uid);
+    		JobController j = new JobController(vaj, uid);
 		});
 	}
 	
@@ -201,7 +211,7 @@ public class PCController {
 		operatorPCView.getTable().getItems().setAll(pc);
 	}
 
-	public void AddNewPC(Integer PcID) {
+	public void AddNewPC(Integer PcID, String condition) {
 	    if (PcID == null) {
 	        showAlert("Invalid PC ID", "Please provide a valid PC ID.", Alert.AlertType.ERROR);
 	        return;
@@ -210,17 +220,60 @@ public class PCController {
 	        showAlert("Duplicate PC", "A PC with the provided ID already exists.", Alert.AlertType.ERROR);
 	        return;
 	    }
-		PC pc = new PC();
-		pc.setPC_ID(PcID);
-		String query = "INSERT INTO PC(PC_ID) VALUES (?)";
-		try(Connection connection = Database.getDB().getConnection()){
-			PreparedStatement ps = connection.prepareStatement(query);
-			ps.setInt(1, pc.getPC_ID());
-			ps.executeUpdate();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+	    
+	    if (!isValidCondition(condition)) {
+	        showAlert("Invalid Condition", "Condition must be either 'Usable', 'Maintenance' or 'Broken'.", Alert.AlertType.ERROR);
+	        return;
+	    }
+
+	    PC pc = new PC();
+	    pc.setPC_ID(PcID);
+	    pc.setPC_Condition(condition); 
+
+	    String query = "INSERT INTO PC(PC_ID, PC_Condition) VALUES (?, ?)";
+	    try (Connection connection = Database.getDB().getConnection()) {
+	        PreparedStatement ps = connection.prepareStatement(query);
+	        ps.setInt(1, pc.getPC_ID());
+	        ps.setString(2, pc.getPC_Condition());
+	        ps.executeUpdate();
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
 	}
+	
+	public void UpdatePCCondition(Integer PcID, String cond) {
+	    if (PcID == null) {
+	        showAlert("Invalid Selection", "Please choose a PC.", Alert.AlertType.ERROR);
+	        return;
+	    }
+	    
+	    if(IsExist(PcID)== false) {
+	    	showAlert("Invalid PC ID", "Please input an existing PC ID.", Alert.AlertType.ERROR);
+	    }
+
+	    ArrayList<String> validConditions = new ArrayList<>(Arrays.asList("Usable", "Maintenance", "Broken"));
+	    if (!validConditions.contains(cond)) {
+	    	System.out.println(cond);
+	        showAlert("Invalid PC Condition", "Must be either 'Usable', 'Maintenance', or 'Broken'.", Alert.AlertType.ERROR);
+	        return;
+	    }
+	    
+	   	String query = "UPDATE PC SET PC_Condition = ? WHERE PC_ID = ?";
+	   	try {
+	   		Connection connection = Database.getDB().getConnection();
+			PreparedStatement ps = connection.prepareStatement(query);
+			ps.setString(1, cond);
+			ps.setInt(2, PcID);
+			ps.executeUpdate();
+	   	} catch (SQLException e) {
+	   		e.printStackTrace();
+	   	}
+	}
+
+	private boolean isValidCondition(String condition) {
+	    return condition != null && (condition.equals("Usable") || condition.equals("Maintenance") || condition.equals("Broken"));
+	}
+
 	
 	private boolean IsExist(Integer pcID) {
 	    String query = "SELECT COUNT(*) FROM PC WHERE PC_ID = ?";
@@ -272,34 +325,7 @@ public class PCController {
 		return pc;
 	}
 	
-	public void UpdatePCCondition(Integer PcID, String cond) {
-	    if (PcID == null) {
-	        showAlert("Invalid Selection", "Please choose a PC.", Alert.AlertType.ERROR);
-	        return;
-	    }
-	    
-	    if(IsExist(PcID)== false) {
-	    	showAlert("Invalid PC ID", "Please input an existing PC ID.", Alert.AlertType.ERROR);
-	    }
-
-	    ArrayList<String> validConditions = new ArrayList<>(Arrays.asList("Usable", "Maintenance", "Broken"));
-	    if (!validConditions.contains(cond)) {
-	    	System.out.println(cond);
-	        showAlert("Invalid PC Condition", "Must be either 'Usable', 'Maintenance', or 'Broken'.", Alert.AlertType.ERROR);
-	        return;
-	    }
-	    
-	   	String query = "UPDATE PC SET PC_Condition = ? WHERE PC_ID = ?";
-	   	try {
-	   		Connection connection = Database.getDB().getConnection();
-			PreparedStatement ps = connection.prepareStatement(query);
-			ps.setString(1, cond);
-			ps.setInt(2, PcID);
-			ps.executeUpdate();
-	   	} catch (SQLException e) {
-	   		e.printStackTrace();
-	   	}
-	}
+	
 	
 	public void DeletePC(Integer PcID) {
 		if (PcID == null) {
