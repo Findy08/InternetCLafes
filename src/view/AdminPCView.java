@@ -19,7 +19,7 @@ public class AdminPCView {
 	private TextField idInput, condInput;
 	private Label idLbl, condLbl;
 	private Integer uid;
-	private Button addButton, deleteButton, updateButton, viewStaffButton, reportButton, historyButton;
+	private Button addButton, deleteButton, updateButton, viewStaffButton, reportButton, historyButton, viewAllJobButton;
 
 	public AdminPCView(Stage primaryStage, Integer uid) {
 		this.primaryStage = primaryStage;
@@ -60,6 +60,9 @@ public class AdminPCView {
         
         idLbl = new Label("PC ID");
         idInput = new TextField();
+        
+        condLbl = new Label("Condition");
+        condInput = new TextField();
 
         addButton = new Button("Add PC");
         deleteButton = new Button("Delete PC");
@@ -67,15 +70,19 @@ public class AdminPCView {
         viewStaffButton = new Button("View All Staff");
         reportButton = new Button("Report");
         historyButton = new Button("History");
+		viewAllJobButton = new Button("View All Job");
         
         form.add(idLbl, 0, 0);
         form.add(idInput, 1, 0);
-        form.add(addButton, 0, 1);
-        form.add(deleteButton, 1, 1);
-        form.add(updateButton, 10, 1);
-        form.add(viewStaffButton, 11, 1);
-        form.add(reportButton, 12, 1);
-        form.add(historyButton, 13, 1);
+		form.add(condLbl, 0, 1);  
+        form.add(condInput, 1, 1);  
+        form.add(addButton, 0, 2);
+        form.add(deleteButton, 1, 2);
+        form.add(updateButton, 10, 2);
+        form.add(viewStaffButton, 11, 2);
+        form.add(reportButton, 12, 2);
+        form.add(historyButton, 13, 2);
+		form.add(viewAllJobButton, 14, 2);
 
         return form;
     }
@@ -102,6 +109,14 @@ public class AdminPCView {
 
 	public void setReportButton(Button reportButton) {
 		this.reportButton = reportButton;
+	}
+
+	public Button getViewAllJobButton() {
+		return viewAllJobButton;
+	}
+
+	public void setViewAllJobButton(Button viewAllJobButton) {
+		this.viewAllJobButton = viewAllJobButton;
 	}
 
 	public Button getUpdateButton() {

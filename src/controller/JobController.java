@@ -12,22 +12,44 @@ import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import model.Job;
 import model.PC;
+import view.AdminPCUpdateView;
+import view.AdminPCView;
+import view.AdminUpdateJobView;
 import view.CompleteJobView;
 import view.TechnicianJobView;
 import view.TechnicianPCView;
+import view.ViewAllJob;
 
 public class JobController {
 	
 	private Integer uid;
 	private Stage primaryStage;
 	private TechnicianJobView tech;
+	private ViewAllJob vaj;
+	private AdminPCView adminPCView;
 	private CompleteJobView comp;
+	private AdminUpdateJobView aujv;
+	
 
 	public JobController(TechnicianJobView tech, Integer uid) {
 		this.tech = tech;
 		this.uid = uid;
 		initializeJob();
 		loadTableDataJob();
+	}
+	
+	public JobController(ViewAllJob vaj, Integer uid) {
+		this.vaj = vaj;
+		this.uid = uid;
+		initializeAdminHandler();
+		loadAllJob();
+	}
+	
+	public JobController(AdminUpdateJobView aujv, Integer uid) {
+		this.aujv = aujv;
+		this.uid = uid;
+		initializeAdminUpdateHandler();
+		loadAllJobUpdate();
 	}
 
 	public void initializeJob() {
@@ -37,6 +59,60 @@ public class JobController {
     		TechnicianPCView tech = new TechnicianPCView(primaryStage, uid);
     		PCController p = new PCController(tech, uid);
         });
+	}
+	
+	public void initializeAdminUpdateHandler() {
+		aujv.getBackButton().setOnAction(event -> {
+			primaryStage = aujv.getPrimaryStage();
+			ViewAllJob vaj = new ViewAllJob(primaryStage, uid);
+    		JobController j = new JobController(vaj, uid);
+        });
+		
+		aujv.getUpdateButton().setOnAction(event -> {
+			try {
+				UpdateJobStatus(Integer.parseInt(aujv.getIdInput().getText()), aujv.getStatusInput().getText().toString());
+				loadAllJobUpdate();
+            } catch(RuntimeException e) {
+            	ShowAlert("Input All Fields", "Please input all fields", Alert.AlertType.ERROR);
+            }
+		});
+	}
+	
+	public void initializeAdminHandler() {
+		vaj.getBackButton().setOnAction(event -> {
+			primaryStage = vaj.getPrimaryStage();
+			AdminPCView apv = new AdminPCView(primaryStage, uid);
+    		PCController p = new PCController(apv, uid);
+        });
+		
+		vaj.getAddButton().setOnAction(event -> {
+			try {
+				String id = vaj.getIdInput().getText();
+				String userid = vaj.getUserInput().getText();
+				String status = vaj.getStatusInput().getText();
+				
+                AddNewJob(Integer.parseInt(userid), Integer.parseInt(id), status);
+                loadAllJob();
+            } catch(RuntimeException e) {
+            	ShowAlert("Input Invalid", "Please input all fields", Alert.AlertType.ERROR);
+            }
+		});
+		
+		vaj.getUpdateButton().setOnAction(event -> {
+			primaryStage = vaj.getPrimaryStage();
+    		AdminUpdateJobView aujv = new AdminUpdateJobView(primaryStage, uid);
+    		JobController j = new JobController(aujv, uid);
+		});
+	}
+
+	void loadAllJob() {
+		ArrayList<Job> job = GetAllJobData();
+		vaj.getTable().getItems().setAll(job);
+	}
+	
+	void loadAllJobUpdate() {
+		ArrayList<Job> job = GetAllJobData();
+		aujv.getTable().getItems().setAll(job);
 	}
 	
 	void loadTableDataJob() {
@@ -70,12 +146,12 @@ public class JobController {
 		comp.getTable().getItems().setAll(job);
 	}
 
-	public void AddNewJob(Integer UserID, Integer PcID) {
+	public void AddNewJob(Integer UserID, Integer PcID, String status) {
 		if (UserID == null || PcID == null) {
             ShowAlert("Invalid Input", "Please provide valid User ID and PC ID.", Alert.AlertType.ERROR);
             return;
         }
-		if (!IsTechnician(UserID)) {
+		if (!isTechnician(UserID)) {
 	        ShowAlert("Invalid User Role", "User must have the role 'Technician'.", Alert.AlertType.ERROR);
 	        return;
 	    }
@@ -83,34 +159,49 @@ public class JobController {
 	        ShowAlert("Invalid PC ID", "PC with ID " + PcID + " does not exist.", Alert.AlertType.ERROR);
 	        return;
 	    }
+		 if (!isValidJobStatus(status)) {
+		        ShowAlert("Invalid Job Status", "Job status must be either 'Complete' or 'UnComplete'.", Alert.AlertType.ERROR);
+		        return;
+		    }
+		
 		Job j = new Job();
 		j.setUserID(UserID);
 	    j.setPC_ID(PcID);		
-	    String query = "INSERT INTO Job(UserID, PC_ID) VALUES (?, ?)";
+	    j.setJobStatus(status);
+	    String query = "INSERT INTO Job(UserID, PC_ID, JobStatus) VALUES (?, ?, ?)";
 		try(Connection connection = Database.getDB().getConnection();
 			PreparedStatement ps = connection.prepareStatement(query)){
 				ps.setInt(1, j.getUserID());
 				ps.setInt(2, j.getPC_ID());
+				ps.setString(3, j.getJobStatus());
 				ps.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
 	
-	private boolean IsTechnician(Integer UserID) {
+	private boolean isValidJobStatus(String status) {
+	    return status != null && (status.equals("Complete") || status.equals("UnComplete"));
+	}
+	
+	private boolean isTechnician(int userID) {
 	    String query = "SELECT COUNT(*) FROM Users WHERE UserID = ? AND UserRole = 'Technician'";
 
 	    try (Connection connection = Database.getDB().getConnection();
 	         PreparedStatement ps = connection.prepareStatement(query)) {
-	        ps.setInt(1, UserID);
+
+	        ps.setInt(1, userID);
 	        ResultSet rs = ps.executeQuery();
+
 	        if (rs.next()) {
 	            int count = rs.getInt(1);
 	            return count > 0;
 	        }
+
 	    } catch (SQLException e) {
 	        e.printStackTrace();
 	    }
+
 	    return false;
 	}
 	
