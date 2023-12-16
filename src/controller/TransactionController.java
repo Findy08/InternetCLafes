@@ -136,7 +136,7 @@ public class TransactionController {
             int[] affectedRows = ps.executeBatch();
             for (int row : affectedRows) {
                 if (row <= 0) {
-                    throw new SQLException("One or more statements in the batch failed to execute.");
+                    throw new SQLException("failed to execute.");
                 }
             }
 
