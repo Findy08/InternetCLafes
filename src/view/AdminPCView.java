@@ -19,7 +19,7 @@ public class AdminPCView {
 	private TextField idInput, condInput;
 	private Label idLbl, condLbl;
 	private Integer uid;
-	private Button addButton, deleteButton, updateButton, viewStaffButton, reportButton;
+	private Button addButton, deleteButton, updateButton, viewStaffButton, reportButton, historyButton;
 
 	public AdminPCView(Stage primaryStage, Integer uid) {
 		this.primaryStage = primaryStage;
@@ -66,6 +66,7 @@ public class AdminPCView {
         updateButton = new Button("Update PC");
         viewStaffButton = new Button("View All Staff");
         reportButton = new Button("Report");
+        historyButton = new Button("History");
         
         form.add(idLbl, 0, 0);
         form.add(idInput, 1, 0);
@@ -73,9 +74,19 @@ public class AdminPCView {
         form.add(deleteButton, 1, 1);
         form.add(updateButton, 10, 1);
         form.add(viewStaffButton, 11, 1);
+        form.add(reportButton, 12, 1);
+        form.add(historyButton, 13, 1);
 
         return form;
     }
+
+	public Button getHistoryButton() {
+		return historyButton;
+	}
+
+	public void setHistoryButton(Button historyButton) {
+		this.historyButton = historyButton;
+	}
 
 	public Button getViewStaffButton() {
 		return viewStaffButton;

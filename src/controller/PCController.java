@@ -11,11 +11,13 @@ import database.Database;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import model.PC;
+import view.AdminHistoryView;
 import view.AdminPCUpdateView;
 import view.AdminPCView;
 import view.AssignUserToNewPCView;
 import view.BookPCView;
 import view.CompleteJobView;
+import view.CustomerHistoryView;
 import view.CustomerPCView;
 import view.HistoryView;
 import view.OperatorPCView;
@@ -52,7 +54,7 @@ public class PCController {
 		
 		customerPCView.getHistoryButton().setOnAction(event -> {
 			primaryStage = customerPCView.getPrimaryStage();
-    		HistoryView custView = new HistoryView(primaryStage, uid);
+    		CustomerHistoryView custView = new CustomerHistoryView(primaryStage, uid);
     		TransactionController r = new TransactionController(custView, uid);
 		});
 
@@ -93,7 +95,6 @@ public class PCController {
     		ReportController p = new ReportController(apc, uid);
 		});
 
-
 		adminPCView.getDeleteButton().setOnAction(event -> {
 			try {
 				String id = adminPCView.getIdInput().getText();
@@ -111,6 +112,12 @@ public class PCController {
         		StaffView staffView = new StaffView(primaryStage, uid);
         		UserController u = new UserController(staffView, uid);
             }
+		});
+		
+		adminPCView.getHistoryButton().setOnAction(event -> {
+			primaryStage = adminPCView.getPrimaryStage();
+    		AdminHistoryView custView = new AdminHistoryView(primaryStage, uid);
+    		TransactionController r = new TransactionController(custView, uid);
 		});
 	}
 	

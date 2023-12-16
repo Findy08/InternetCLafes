@@ -9,12 +9,23 @@ import java.sql.Statement;
 import java.util.ArrayList;
 
 import database.Database;
-import model.TransactionHeader;
-import view.HistoryView;
+import javafx.stage.Stage;
 import model.PCBook;
 import model.TransactionDetail;
+import model.TransactionHeader;
+import view.AdminHistoryView;
+import view.AdminPCView;
+import view.CustomerHistoryView;
+import view.CustomerPCView;
+import view.HistoryView;
+import view.OperatorPCView;
 
 public class TransactionController {
+	
+	private Stage primaryStage;
+	private CustomerHistoryView customerHistory;
+	private AdminHistoryView adminHistory;
+	private Integer uid;
 
 //	public void AddTransaction(Integer TransactionID, ArrayList<PCBook> PcBook, Integer StaffID) {
 //		TransactionHeader th = new TransactionHeader();
@@ -75,12 +86,51 @@ public class TransactionController {
 //		}
 //	}
 	
-	public TransactionController(HistoryView custView, Integer uid) {
+	public TransactionController(CustomerHistoryView custView, Integer uid) {
 		// TODO Auto-generated constructor stub
+		this.customerHistory = custView;
+		this.uid = uid;
+		initializeCustomerTransactions();
+		loadCustomerTableDataTransactions();
 	}
 	
+	public TransactionController(AdminHistoryView custView, Integer uid) {
+		// TODO Auto-generated constructor stub
+		this.adminHistory = custView;
+		this.uid = uid;
+		initializeAdminTransactions();
+		loadAdminTableDataTransactions();
+	}
+	
+	private void loadCustomerTableDataTransactions() {
+		// TODO Auto-generated method stub
+		ArrayList<TransactionDetail> td = GetUserTransactionDetail(this.uid);
+		customerHistory.getTable().getItems().setAll(td);
+	}
+	
+	private void loadAdminTableDataTransactions() {
+		ArrayList<TransactionHeader> th = GetAllTransactionHeader();
+		adminHistory.getThTable().getItems().setAll(th);
+	}
+
 	public TransactionController() {
 		
+	}
+	
+	public void initializeCustomerTransactions() {
+		customerHistory.getBackButton().setOnAction(event -> {
+			primaryStage = customerHistory.getPrimaryStage();
+    		CustomerPCView pc = new CustomerPCView(primaryStage, uid);
+    		PCController p = new PCController(pc, uid);
+        });
+	}
+	
+	public void initializeAdminTransactions() {
+		adminHistory.getBackButton().setOnAction(event -> {
+			primaryStage = adminHistory.getPrimaryStage();
+			AdminPCView pc = new AdminPCView(primaryStage, uid);
+    		PCController p = new PCController(pc, uid);
+        });
 	}
 
 	public void AddTransaction(Integer staffID, Date transactionDate, ArrayList<PCBook> pcBooks) {
@@ -184,11 +234,13 @@ public class TransactionController {
 	}
 	
 	public ArrayList<TransactionDetail> GetUserTransactionDetail(Integer userID) {
+		UserController uc = new UserController();
+		String custName = uc.GetName(userID);
 		ArrayList<TransactionDetail> transactionDetails = new ArrayList<>();
         try (Connection connection = Database.getDB().getConnection()) {
-            String sql = "SELECT * FROM TransactionDetail WHERE UserID = ?";
+            String sql = "SELECT * FROM TransactionDetail WHERE CustomerName = ?";
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
-                statement.setInt(1, userID);
+                statement.setString(1, custName);
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while (resultSet.next()) {
                         TransactionDetail transactionDetail = new TransactionDetail();
