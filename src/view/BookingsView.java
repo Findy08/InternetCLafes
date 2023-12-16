@@ -17,8 +17,8 @@ public class BookingsView {
 	
 	private Stage primaryStage;
 	private TableView<PCBook> table;
-	private Label idLbl;
-	private TextField idInput;
+	private Label idLbl, dateLbl;
+	private TextField idInput, dateInput;
 	private Button backButton, finishButton, cancelButton;
 	private Integer uid;
 
@@ -69,6 +69,8 @@ public class BookingsView {
         
         idLbl = new Label("Book ID to Finish/Cancel");
         idInput = new TextField();
+        dateLbl = new Label("Book Date to Finish");
+        dateInput = new TextField();
         
         finishButton = new Button("Finish Booking");
         cancelButton = new Button("Cancel Booking");
@@ -76,9 +78,11 @@ public class BookingsView {
         
         form.add(idLbl, 0, 0);
         form.add(idInput, 1, 0);
-        form.add(finishButton, 0, 1);
-        form.add(cancelButton, 1, 1);
-        form.add(backButton, 2, 1);
+        form.add(dateLbl, 0, 1);
+        form.add(dateInput, 1, 1);
+        form.add(finishButton, 0, 2);
+        form.add(cancelButton, 1, 2);
+        form.add(backButton, 2, 2);
 
         return form;
     }

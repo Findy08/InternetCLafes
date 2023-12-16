@@ -44,11 +44,12 @@ public class PCBookController {
         });
 		
 		book.getFinishButton().setOnAction(event -> {
-			
-        });
+
+	    });
 		
 		book.getCancelButton().setOnAction(event -> {
-			Integer id = Integer.parseInt(book.getIdInput().getText());
+			Integer id = null;
+			id = Integer.parseInt(book.getIdInput().getText());
 			DeleteBookData(id);
 			loadTableDataBookings();
         });
@@ -75,6 +76,7 @@ public class PCBookController {
 			Integer pid = Integer.parseInt(pc.getPidInput().getText());
 			Date date = Date.valueOf(pc.getDateInput().getText().toString());
 			AddNewBook(pid, uid, date);
+			loadTableDataBook();
         });
 		
 		pc.getBackButton().setOnAction(event -> {
