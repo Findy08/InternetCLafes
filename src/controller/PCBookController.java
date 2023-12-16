@@ -61,8 +61,30 @@ public class PCBookController {
 		book.getTable().getItems().setAll(pcbook);
 	}
 
-	public PCBookController(AssignUserToNewPCView op, Integer uid) {
-		// TODO Auto-generated constructor stub
+	public PCBookController(AssignUserToNewPCView ass, Integer uid) {
+		this.ass = ass;
+		this.uid = uid;
+		initializeAssign();
+		loadTableDataAssign();
+	}
+
+	private void initializeAssign() {
+		ass.getBackButton().setOnAction(event -> {
+			primaryStage = ass.getPrimaryStage();
+    		OperatorPCView book = new OperatorPCView(primaryStage, uid);
+    		PCController p = new PCController(book, uid);
+        });
+		ass.getUpdateButton().setOnAction(event -> {
+			Integer BookID = Integer.parseInt(ass.getIdInput().getText().toString());
+			Integer PcID = Integer.parseInt(ass.getPcInput().getText().toString());
+			AssignUserToNewPC(BookID, PcID);
+			loadTableDataAssign();
+	    });
+	}
+	
+	void loadTableDataAssign() {
+		ArrayList<PCBook> pcbook = GetAllPCBookedData();
+		ass.getTable().getItems().setAll(pcbook);
 	}
 
 	public PCBookController(BookPCView pc, Integer uid) {
