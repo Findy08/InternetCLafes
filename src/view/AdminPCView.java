@@ -83,8 +83,6 @@ public class AdminPCView {
 
 	public void setViewStaffButton(Button viewStaffButton) {
 		this.viewStaffButton = viewStaffButton;
-        form.add(reportButton, 11, 1);
-        return form;
     }
 
 	public Button getReportButton() {
