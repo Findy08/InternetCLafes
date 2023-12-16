@@ -47,6 +47,7 @@ public class UserController {
 		initializeLogin();
 	}
 	
+	
 	public UserController(RegisView regisView) {
         this.regisView = regisView;
         initializeRegistration();

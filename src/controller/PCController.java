@@ -19,6 +19,7 @@ import view.CompleteJobView;
 import view.CustomerPCView;
 import view.HistoryView;
 import view.OperatorPCView;
+import view.MakeReportView;
 import view.ReportView;
 import view.StaffView;
 import view.TechnicianJobView;
@@ -45,7 +46,7 @@ public class PCController {
 	public void initializeCustomerHandler() {
 		customerPCView.getReportButton().setOnAction(event -> {
 			primaryStage = customerPCView.getPrimaryStage();
-    		ReportView custView = new ReportView(primaryStage, uid);
+    		MakeReportView custView = new MakeReportView(primaryStage, uid);
     		ReportController r = new ReportController(custView, uid);
 		});
 		
@@ -85,6 +86,13 @@ public class PCController {
     		AdminPCUpdateView apc = new AdminPCUpdateView(primaryStage, uid);
     		PCController p = new PCController(apc, uid);
 		});
+		
+		adminPCView.getReportButton().setOnAction(event -> {
+			primaryStage = adminPCView.getPrimaryStage();
+    		ReportView apc = new ReportView(primaryStage, uid);
+    		ReportController p = new ReportController(apc, uid);
+		});
+
 
 		adminPCView.getDeleteButton().setOnAction(event -> {
 			try {
