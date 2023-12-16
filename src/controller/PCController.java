@@ -122,6 +122,7 @@ public class PCController {
 			primaryStage = adminPCView.getPrimaryStage();
     		AdminHistoryView custView = new AdminHistoryView(primaryStage, uid);
     		TransactionController r = new TransactionController(custView, uid);
+    	});
 			
 		adminPCView.getViewAllJobButton().setOnAction(event -> {
 			primaryStage = adminPCView.getPrimaryStage();
