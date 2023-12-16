@@ -27,6 +27,10 @@ public class TransactionController {
 	AdminTransactionDetailView adminDetail;
 	private Integer uid;
 	
+	public TransactionController() {
+		
+	}
+	
 	public TransactionController(CustomerHistoryView custView, Integer uid) {
 		// TODO Auto-generated constructor stub
 		this.customerHistory = custView;
@@ -35,12 +39,47 @@ public class TransactionController {
 		loadCustomerTableDataTransactions();
 	}
 	
+	public void initializeCustomerTransactions() {
+		customerHistory.getBackButton().setOnAction(event -> {
+			primaryStage = customerHistory.getPrimaryStage();
+    		CustomerPCView pc = new CustomerPCView(primaryStage, uid);
+    		PCController p = new PCController(pc, uid);
+        });
+	}
+	
+	private void loadCustomerTableDataTransactions() {
+		// TODO Auto-generated method stub
+		ArrayList<TransactionDetail> td = GetUserTransactionDetail(this.uid);
+		customerHistory.getTable().getItems().setAll(td);
+	}
+	
 	public TransactionController(AdminHistoryView custView, Integer uid) {
 		// TODO Auto-generated constructor stub
 		this.adminHistory = custView;
 		this.uid = uid;
 		initializeAdminTransactions();
 		loadAdminTableDataTransactions();
+	}
+	
+	public void initializeAdminTransactions() {
+		adminHistory.getBackButton().setOnAction(event -> {
+			primaryStage = adminHistory.getPrimaryStage();
+			AdminPCView pc = new AdminPCView(primaryStage, uid);
+    		PCController p = new PCController(pc, uid);
+        });
+		
+		adminHistory.getDetailButton().setOnAction(event -> {
+			primaryStage = adminHistory.getPrimaryStage();
+			AdminTransactionDetailView atdv = new AdminTransactionDetailView(primaryStage, uid);
+			Integer inputValue = Integer.parseInt(adminHistory.getIdInput().getText());
+			System.out.println(inputValue);
+    		TransactionController tc = new TransactionController(atdv, uid, inputValue);
+        });
+	}
+	
+	private void loadAdminTableDataTransactions() {
+		ArrayList<TransactionHeader> th = GetAllTransactionHeader();
+		adminHistory.getThTable().getItems().setAll(th);
 	}
 	
 	public TransactionController(AdminTransactionDetailView custView, Integer uid, Integer TransactionID) {
@@ -64,45 +103,6 @@ public class TransactionController {
 		// TODO Auto-generated method stub
 		ArrayList<TransactionDetail> td = GetAllTransactionDetail(TransactionID);
 		adminDetail.getTdTable().getItems().setAll(td);
-	}
-
-	private void loadCustomerTableDataTransactions() {
-		// TODO Auto-generated method stub
-		ArrayList<TransactionDetail> td = GetUserTransactionDetail(this.uid);
-		customerHistory.getTable().getItems().setAll(td);
-	}
-	
-	private void loadAdminTableDataTransactions() {
-		ArrayList<TransactionHeader> th = GetAllTransactionHeader();
-		adminHistory.getThTable().getItems().setAll(th);
-	}
-
-	public TransactionController() {
-		
-	}
-	
-	public void initializeCustomerTransactions() {
-		customerHistory.getBackButton().setOnAction(event -> {
-			primaryStage = customerHistory.getPrimaryStage();
-    		CustomerPCView pc = new CustomerPCView(primaryStage, uid);
-    		PCController p = new PCController(pc, uid);
-        });
-	}
-	
-	public void initializeAdminTransactions() {
-		adminHistory.getBackButton().setOnAction(event -> {
-			primaryStage = adminHistory.getPrimaryStage();
-			AdminPCView pc = new AdminPCView(primaryStage, uid);
-    		PCController p = new PCController(pc, uid);
-        });
-		
-		adminHistory.getDetailButton().setOnAction(event -> {
-			primaryStage = adminHistory.getPrimaryStage();
-			AdminTransactionDetailView atdv = new AdminTransactionDetailView(primaryStage, uid);
-			Integer inputValue = Integer.parseInt(adminHistory.getIdInput().getText());
-			System.out.println(inputValue);
-    		TransactionController tc = new TransactionController(atdv, uid, inputValue);
-        });
 	}
 
 	public void AddTransaction(Integer staffID, Date transactionDate, ArrayList<PCBook> pcBooks) {
