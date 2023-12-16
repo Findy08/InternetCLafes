@@ -117,11 +117,9 @@ public class TransactionController {
 	                return header;
 	            }
 	        }
-
 	    } catch (SQLException e) {
 	        e.printStackTrace();
 	    }
-
 	    return null;
 	}
 
@@ -138,9 +136,8 @@ public class TransactionController {
 	                statement.setString(3, customerName);
 
 	                statement.setDate(4, java.sql.Date.valueOf(pcBook.getBookedDate().toString()));
-	                statement.addBatch();
+	                statement.executeUpdate();
 	            }
-	            statement.executeBatch();
 	        }
 	    } catch (SQLException e) {
 	        e.printStackTrace();
@@ -185,4 +182,28 @@ public class TransactionController {
 		}
 		return td;
 	}
+	
+	public ArrayList<TransactionDetail> GetUserTransactionDetail(Integer userID) {
+		ArrayList<TransactionDetail> transactionDetails = new ArrayList<>();
+        try (Connection connection = Database.getDB().getConnection()) {
+            String sql = "SELECT * FROM TransactionDetail WHERE UserID = ?";
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setInt(1, userID);
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    while (resultSet.next()) {
+                        TransactionDetail transactionDetail = new TransactionDetail();
+                        transactionDetail.setTransactionID(resultSet.getInt("TransactionID"));
+                        transactionDetail.setPC_ID(resultSet.getInt("PC_ID"));
+                        transactionDetail.setCustomerName(resultSet.getString("CustomerName"));
+                        transactionDetail.setBookedTime(resultSet.getDate("BookedTime").toString());
+
+                        transactionDetails.add(transactionDetail);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return transactionDetails;
+    }
 }
