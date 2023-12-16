@@ -67,7 +67,7 @@ public class BookingsView {
         form.setVgap(20);
         form.setHgap(10);
         
-        idLbl = new Label("Book ID to Finish/Cancel");
+        idLbl = new Label("Book ID to Cancel");
         idInput = new TextField();
         dateLbl = new Label("Book Date to Finish");
         dateInput = new TextField();
@@ -93,6 +93,22 @@ public class BookingsView {
 
 	public void setIdLbl(Label idLbl) {
 		this.idLbl = idLbl;
+	}
+
+	public Label getDateLbl() {
+		return dateLbl;
+	}
+
+	public void setDateLbl(Label dateLbl) {
+		this.dateLbl = dateLbl;
+	}
+
+	public TextField getDateInput() {
+		return dateInput;
+	}
+
+	public void setDateInput(TextField dateInput) {
+		this.dateInput = dateInput;
 	}
 
 	public TextField getIdInput() {

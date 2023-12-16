@@ -24,8 +24,6 @@ public class TransactionHeader {
 		StaffID = staffID;
 	}
 
-
-
 	public String getStaffName() {
 		return StaffName;
 	}

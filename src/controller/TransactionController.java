@@ -5,6 +5,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 
 import database.Database;
@@ -77,78 +78,74 @@ public class TransactionController {
 	public TransactionController(HistoryView custView, Integer uid) {
 		// TODO Auto-generated constructor stub
 	}
+	
+	public TransactionController() {
+		
+	}
 
-	public void addTransaction(Integer staffID, Date transactionDate, ArrayList<PCBook> pcBooks) {
-        TransactionHeader header = addTransactionHeader(staffID, transactionDate);
+	public void AddTransaction(Integer staffID, Date transactionDate, ArrayList<PCBook> pcBooks) {
+        TransactionHeader header = AddNewTransactionHeader(staffID, transactionDate);
         if (header != null) {
             int transactionID = header.getTransactionID();
-            addTransactionDetails(transactionID, pcBooks);
+            AddTransactionDetail(transactionID, pcBooks);
         }
     }
 
-    private TransactionHeader addTransactionHeader(Integer staffID, Date transactionDate) {
-        TransactionHeader header = new TransactionHeader();
-        UserController uc = new UserController();
-        
-        String staffName = uc.GetName(staffID);
-        header.setStaffID(staffID);
-        header.setStaffName(staffName);
-        header.setTransactionDate(transactionDate);
+	private TransactionHeader AddNewTransactionHeader(Integer staffID, Date transactionDate) {
+	    TransactionHeader header = new TransactionHeader();
+	    UserController uc = new UserController();
 
-        String query = "INSERT INTO TransactionHeader(StaffID, StaffName, TransactionDate) VALUES (?, ?, ?)";
-        try (Connection connection = Database.getDB().getConnection();
-             PreparedStatement ps = connection.prepareStatement(query)) {
+	    String staffName = uc.GetName(staffID);
+	    header.setStaffID(staffID);
+	    header.setStaffName(staffName);
+	    header.setTransactionDate(transactionDate);
 
-            ps.setInt(1, header.getStaffID());
-            ps.setString(2, header.getStaffName());
-            ps.setDate(3, new java.sql.Date(header.getTransactionDate().getTime()));
+	    String query = "INSERT INTO TransactionHeader(StaffID, StaffName, TransactionDate) VALUES (?, ?, ?)";
+	    try (Connection connection = Database.getDB().getConnection();
+	         PreparedStatement ps = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 
-            int rowsAffected = ps.executeUpdate();
+	        ps.setInt(1, header.getStaffID());
+	        ps.setString(2, header.getStaffName());
+	        ps.setDate(3, new java.sql.Date(header.getTransactionDate().getTime()));
 
-            if (rowsAffected > 0) {
-                return header; 
-            }
+	        int rowsAffected = ps.executeUpdate();
 
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+	        if (rowsAffected > 0) {
+	            ResultSet generatedKeys = ps.getGeneratedKeys();
+	            if (generatedKeys.next()) {
+	                header.setTransactionID(generatedKeys.getInt(1));
+	                return header;
+	            }
+	        }
 
-        return null;
-    }
-    
-    private void addTransactionDetails(Integer transactionID, ArrayList<PCBook> pcBooks) {
-        String query = "INSERT INTO TransactionDetail(TransactionID, PC_ID, CustomerName, BookedTime) VALUES (?, ?, ?, ?)";
-        try (Connection connection = Database.getDB().getConnection();
-             PreparedStatement ps = connection.prepareStatement(query)) {
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
 
-            for (PCBook pb : pcBooks) {
-                TransactionDetail detail = new TransactionDetail();
-                detail.setTransactionID(transactionID);
-                detail.setPC_ID(pb.getPC_ID());
+	    return null;
+	}
 
-                UserController uc = new UserController();
-                String customerName = uc.GetName(pb.getUserID());
-                detail.setCustomerName(customerName);
+	private void AddTransactionDetail(Integer TransactionID, ArrayList<PCBook> PcBook) {
+	    try (Connection connection = Database.getDB().getConnection()) {
+	        String sql = "INSERT INTO TransactionDetail (TransactionID, PC_ID, CustomerName, BookedTime) VALUES (?, ?, ?, ?)";
+	        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+	            for (PCBook pcBook : PcBook) {
+	                statement.setInt(1, TransactionID);
+	                statement.setInt(2, pcBook.getPC_ID());
 
-                detail.setBookedTime(pb.getBookedDate().toString()); 
+	                UserController uc = new UserController();
+	                String customerName = uc.GetName(pcBook.getUserID());
+	                statement.setString(3, customerName);
 
-                ps.setInt(1, detail.getTransactionID());
-                ps.setInt(2, detail.getPC_ID());
-                ps.setString(3, detail.getCustomerName());
-                ps.setString(4, detail.getBookedTime());
-                ps.addBatch(); 
-            }
-            int[] affectedRows = ps.executeBatch();
-            for (int row : affectedRows) {
-                if (row <= 0) {
-                    throw new SQLException("One or more statements in the batch failed to execute.");
-                }
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
+	                statement.setDate(4, java.sql.Date.valueOf(pcBook.getBookedDate().toString()));
+	                statement.addBatch();
+	            }
+	            statement.executeBatch();
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	}
 
 	public ArrayList<TransactionHeader> GetAllTransactionHeader() {
 		ArrayList<TransactionHeader> th = new ArrayList<TransactionHeader>();

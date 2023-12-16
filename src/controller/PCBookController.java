@@ -5,10 +5,8 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import database.Database;
 import javafx.scene.control.Alert;
@@ -44,7 +42,10 @@ public class PCBookController {
         });
 		
 		book.getFinishButton().setOnAction(event -> {
-
+			Date date = Date.valueOf(book.getDateInput().getText().toString());
+			ArrayList<PCBook> pcBookList = GetPcBookedByDate(date);
+			FinishBook(pcBookList, date);
+			loadTableDataBookings();
 	    });
 		
 		book.getCancelButton().setOnAction(event -> {
@@ -231,11 +232,15 @@ public class PCBookController {
 	    return pcbook;
 	}
 	
-	public void FinishBook(List<PCBook> pcBookList, Date chosenDate) {
+	public void FinishBook(ArrayList<PCBook> pcBookList, Date chosenDate) {
 		if (chosenDate == null) {
 			ShowAlert("Date must be selected", AlertType.WARNING);
 	        return;
 	    }
+		
+		TransactionController tc = new TransactionController();
+		tc.AddTransaction(this.uid, chosenDate, pcBookList);
+		
 	    String finishBookQuery = "DELETE FROM PCBook WHERE BookID = ? AND BookedDate = ?";
 	    
 	    try (Connection connection = Database.getDB().getConnection();
