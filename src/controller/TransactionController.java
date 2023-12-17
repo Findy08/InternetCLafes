@@ -26,6 +26,8 @@ public class TransactionController {
 	private AdminHistoryView adminHistory;
 	AdminTransactionDetailView adminDetail;
 	private Integer uid;
+	private TransactionDetail td = new TransactionDetail();
+	private TransactionHeader th = new TransactionHeader();
 	
 	public TransactionController() {
 		
@@ -78,7 +80,7 @@ public class TransactionController {
 	}
 	
 	private void loadAdminTableDataTransactions() {
-		ArrayList<TransactionHeader> th = GetAllTransactionHeader();
+		ArrayList<TransactionHeader> th = GetAllTransactionHeaderData();
 		adminHistory.getThTable().getItems().setAll(th);
 	}
 	
@@ -106,138 +108,22 @@ public class TransactionController {
 	}
 
 	public void AddTransaction(Integer staffID, Date transactionDate, ArrayList<PCBook> pcBooks) {
-	    TransactionHeader transactionHeader = AddNewTransactionHeader(staffID, transactionDate);
+	    TransactionHeader transactionHeader = th.AddNewTransactionHeader(staffID, transactionDate);
 
 	    if (transactionHeader != null) {
-	        AddTransactionDetail(transactionHeader.getTransactionID(), pcBooks);
-	    } else {
-	        System.out.println("Failed to create Transaction Header");
+	        td.AddTransactionDetail(transactionHeader.getTransactionID(), pcBooks);
 	    }
 	}
 
-
-	private TransactionHeader AddNewTransactionHeader(Integer staffID, Date transactionDate) {
-	    TransactionHeader header = new TransactionHeader();
-	    UserController uc = new UserController();
-
-	    String staffName = uc.GetName(staffID);
-	    header.setStaffID(staffID);
-	    header.setStaffName(staffName);
-	    header.setTransactionDate(transactionDate);
-
-	    String query = "INSERT INTO TransactionHeader(StaffID, StaffName, TransactionDate) VALUES (?, ?, ?)";
-	    try (Connection connection = Database.getDB().getConnection();
-	         PreparedStatement ps = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-
-	        ps.setInt(1, header.getStaffID());
-	        ps.setString(2, header.getStaffName());
-	        ps.setDate(3, new java.sql.Date(header.getTransactionDate().getTime()));
-
-	        int rowsAffected = ps.executeUpdate();
-
-	        if (rowsAffected > 0) {
-	            ResultSet generatedKeys = ps.getGeneratedKeys();
-	            if (generatedKeys.next()) {
-	                header.setTransactionID(generatedKeys.getInt(1));
-	                return header;
-	            }
-	        }
-	    } catch (SQLException e) {
-	        e.printStackTrace();
-	    }
-	    return null;
-	}
-
-	private void AddTransactionDetail(Integer TransactionID, ArrayList<PCBook> PcBook) {
-		UserController uc = new UserController();
-		ArrayList<String> names = new ArrayList<>();
-		for (PCBook pcb : PcBook) {
-			names.add(uc.GetName(pcb.getUserID()));
-		}
-		int index=0;
-	    try (Connection connection = Database.getDB().getConnection()) {
-	        String sql = "INSERT INTO TransactionDetail (TransactionID, PC_ID, CustomerName, BookedTime) VALUES (?, ?, ?, ?)";
-	        try (PreparedStatement statement = connection.prepareStatement(sql)) {
-	            for (PCBook pcBook : PcBook) {
-	                try {
-	                    statement.setInt(1, TransactionID);
-	                    statement.setInt(2, pcBook.getPC_ID());
-	                    statement.setString(3, names.get(index));
-	                    index++;
-	                    statement.setDate(4, java.sql.Date.valueOf(pcBook.getBookedDate().toString()));
-	                    statement.executeUpdate();
-	                } catch (SQLException e) {
-	                    e.printStackTrace();
-	                }
-	            }
-	        }
-	    } catch (SQLException e) {
-	        e.printStackTrace();
-	    }
-	}
-
-	public ArrayList<TransactionHeader> GetAllTransactionHeader() {
-		ArrayList<TransactionHeader> th = new ArrayList<TransactionHeader>();
-		String query = "SELECT * FROM TransactionHeader";
-		try(Connection connection = Database.getDB().getConnection()){
-			PreparedStatement ps = connection.prepareStatement(query);
-			ResultSet resultSet = ps.executeQuery();
-			while(resultSet.next()) {
-				Integer id = resultSet.getInt("TransactionID");
-				Integer sid = resultSet.getInt("StaffID");
-				String name = resultSet.getString("StaffName");
-				Date date = resultSet.getDate("TransactionDate");
-				th.add(new TransactionHeader(id, sid, name, date));
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return th;
+	public ArrayList<TransactionHeader> GetAllTransactionHeaderData() {
+		return th.GetAllTransactionHeaderData();
 	}
 	
 	public ArrayList<TransactionDetail> GetAllTransactionDetail(Integer TransactionID) {
-		ArrayList<TransactionDetail> td = new ArrayList<TransactionDetail>();
-		String query = "SELECT * FROM TransactionDetail WHERE TransactionID = ?";
-		try(Connection connection = Database.getDB().getConnection()){
-			PreparedStatement ps = connection.prepareStatement(query);
-			ps.setInt(1, TransactionID);
-			ResultSet resultSet = ps.executeQuery();
-			while(resultSet.next()) {
-				Integer id = resultSet.getInt("TransactionID");
-				Integer pid = resultSet.getInt("PC_ID");
-				String name = resultSet.getString("CustomerName");
-				String date = resultSet.getString("BookedTime");
-				td.add(new TransactionDetail(id, pid, name, date));
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return td;
+		return td.GetAllTransactionDetail(TransactionID);
 	}
 	
 	public ArrayList<TransactionDetail> GetUserTransactionDetail(Integer userID) {
-		UserController uc = new UserController();
-		String custName = uc.GetName(userID);
-		ArrayList<TransactionDetail> transactionDetails = new ArrayList<>();
-        try (Connection connection = Database.getDB().getConnection()) {
-            String sql = "SELECT * FROM TransactionDetail WHERE CustomerName = ?";
-            try (PreparedStatement statement = connection.prepareStatement(sql)) {
-                statement.setString(1, custName);
-                try (ResultSet resultSet = statement.executeQuery()) {
-                    while (resultSet.next()) {
-                        TransactionDetail transactionDetail = new TransactionDetail();
-                        transactionDetail.setTransactionID(resultSet.getInt("TransactionID"));
-                        transactionDetail.setPC_ID(resultSet.getInt("PC_ID"));
-                        transactionDetail.setCustomerName(resultSet.getString("CustomerName"));
-                        transactionDetail.setBookedTime(resultSet.getDate("BookedTime").toString());
-
-                        transactionDetails.add(transactionDetail);
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return transactionDetails;
+		return td.GetUserTransactionDetail(userID);
     }
 }
