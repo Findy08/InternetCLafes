@@ -106,12 +106,15 @@ public class TransactionController {
 	}
 
 	public void AddTransaction(Integer staffID, Date transactionDate, ArrayList<PCBook> pcBooks) {
-        TransactionHeader header = AddNewTransactionHeader(staffID, transactionDate);
-        if (header != null) {
-            int transactionID = header.getTransactionID();
-            AddTransactionDetail(transactionID, pcBooks);
-        }
-    }
+	    TransactionHeader transactionHeader = AddNewTransactionHeader(staffID, transactionDate);
+
+	    if (transactionHeader != null) {
+	        AddTransactionDetail(transactionHeader.getTransactionID(), pcBooks);
+	    } else {
+	        System.out.println("Failed to create Transaction Header");
+	    }
+	}
+
 
 	private TransactionHeader AddNewTransactionHeader(Integer staffID, Date transactionDate) {
 	    TransactionHeader header = new TransactionHeader();
@@ -146,19 +149,26 @@ public class TransactionController {
 	}
 
 	private void AddTransactionDetail(Integer TransactionID, ArrayList<PCBook> PcBook) {
+		UserController uc = new UserController();
+		ArrayList<String> names = new ArrayList<>();
+		for (PCBook pcb : PcBook) {
+			names.add(uc.GetName(pcb.getUserID()));
+		}
+		int index=0;
 	    try (Connection connection = Database.getDB().getConnection()) {
 	        String sql = "INSERT INTO TransactionDetail (TransactionID, PC_ID, CustomerName, BookedTime) VALUES (?, ?, ?, ?)";
 	        try (PreparedStatement statement = connection.prepareStatement(sql)) {
 	            for (PCBook pcBook : PcBook) {
-	                statement.setInt(1, TransactionID);
-	                statement.setInt(2, pcBook.getPC_ID());
-
-	                UserController uc = new UserController();
-	                String customerName = uc.GetName(pcBook.getUserID());
-	                statement.setString(3, customerName);
-
-	                statement.setDate(4, java.sql.Date.valueOf(pcBook.getBookedDate().toString()));
-	                statement.executeUpdate();
+	                try {
+	                    statement.setInt(1, TransactionID);
+	                    statement.setInt(2, pcBook.getPC_ID());
+	                    statement.setString(3, names.get(index));
+	                    index++;
+	                    statement.setDate(4, java.sql.Date.valueOf(pcBook.getBookedDate().toString()));
+	                    statement.executeUpdate();
+	                } catch (SQLException e) {
+	                    e.printStackTrace();
+	                }
 	            }
 	        }
 	    } catch (SQLException e) {
