@@ -65,7 +65,7 @@ public class Job {
             return;
         }
 		if (!isTechnician(UserID)) {
-	        ShowAlert("Invalid User Role", "User must have the role 'Technician'.", Alert.AlertType.ERROR);
+	        ShowAlert("Invalid User Role", "User must have the role 'Computer Technician'.", Alert.AlertType.ERROR);
 	        return;
 	    }
 		if (!IsPCExist(PcID)) {
@@ -98,7 +98,7 @@ public class Job {
 	}
 	
 	private boolean isTechnician(int userID) {
-	    String query = "SELECT COUNT(*) FROM Users WHERE UserID = ? AND UserRole = 'Technician'";
+	    String query = "SELECT COUNT(*) FROM Users WHERE UserID = ? AND UserRole = 'Computer Technician'";
 
 	    try (Connection connection = Database.getDB().getConnection();
 	         PreparedStatement ps = connection.prepareStatement(query)) {
