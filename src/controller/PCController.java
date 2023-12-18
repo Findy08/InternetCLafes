@@ -15,6 +15,7 @@ import view.CustomerHistoryView;
 import view.CustomerPCView;
 import view.OperatorPCView;
 import view.MakeReportView;
+import view.OperatorMakeReportView;
 import view.ReportView;
 import view.StaffView;
 import view.TechnicianJobView;
@@ -210,6 +211,12 @@ public class PCController {
 			primaryStage = operatorPCView.getPrimaryStage();
     		AssignUserToNewPCView op = new AssignUserToNewPCView(primaryStage, uid);
     		PCBookController p = new PCBookController(op, uid);
+		});
+		
+		operatorPCView.getMakeReport().setOnAction(event -> {
+			primaryStage = operatorPCView.getPrimaryStage();
+    		OperatorMakeReportView op = new OperatorMakeReportView(primaryStage, uid);
+    		ReportController p = new ReportController(op, uid);
 		});
 	}
 	
