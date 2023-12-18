@@ -8,10 +8,13 @@ import model.Report;
 import view.AdminPCView;
 import view.CustomerPCView;
 import view.MakeReportView;
+import view.OperatorMakeReportView;
+import view.OperatorPCView;
 import view.ReportView;
 
 public class ReportController {
 	private MakeReportView repView;
+	private OperatorMakeReportView OrepView;
 	private ReportView apc;
 	private Integer uid;
 	private Stage primaryStage;
@@ -21,6 +24,12 @@ public class ReportController {
         this.repView = repView;
         this.uid = uid;
         initializeAddReport();
+	}
+	
+	public ReportController(OperatorMakeReportView OrepView, Integer uid) {
+        this.OrepView = OrepView;
+        this.uid = uid;
+        initializeAddOpReport();
 	}
 
 	public ReportController(ReportView apc, Integer uid) {
@@ -59,6 +68,26 @@ public class ReportController {
           CustomerPCView customerPcView = new CustomerPCView(primaryStage, uid);
           PCController pcController = new PCController(customerPcView, uid);
 		});
+	}
+	
+	public void initializeAddOpReport() {
+		OrepView.getSubmitButton().setOnAction(event -> {
+            Integer pcId = Integer.parseInt(OrepView.getPcIdTxt().getText());
+            String reportNote = OrepView.getReportNoteTxt().getText();
+
+        	long millis=System.currentTimeMillis();  
+    	    java.sql.Date date = new java.sql.Date(millis);    
+            		UserController userCon = new UserController();
+            		String role = userCon.GetRole(userCon.GetName(uid));
+                	AddNewReport(role, pcId, reportNote);
+                    showAlert("Added Successful", "Added successfully!", Alert.AlertType.INFORMATION);
+        });
+		OrepView.getBackButton().setOnAction(event -> {
+			primaryStage = OrepView.getPrimaryStage();
+          OperatorPCView OPcView = new OperatorPCView(primaryStage, uid);
+          PCController pcController = new PCController(OPcView, uid);
+		});
+		
 	}
 	
 	public void AddNewReport(String UserRole, Integer PcID, String ReportNote) {

@@ -16,7 +16,7 @@ public class OperatorPCView {
 	private Stage primaryStage;
 	private TableView<PC> table;
 	private Integer uid;
-	private Button viewBookButton, assignUserButton;
+	private Button viewBookButton, assignUserButton, makeReport;
 
 	public OperatorPCView(Stage primaryStage, Integer uid) {
 		this.primaryStage = primaryStage;
@@ -57,12 +57,22 @@ public class OperatorPCView {
 
         viewBookButton = new Button("View Bookings");
         assignUserButton = new Button("Assign User to New PC");
+        makeReport = new Button("Make Report");
         
         form.add(viewBookButton, 0, 0);
         form.add(assignUserButton, 3, 0);
+        form.add(makeReport, 6, 0);
 
         return form;
     }
+
+	public Button getMakeReport() {
+		return makeReport;
+	}
+
+	public void setMakeReport(Button makeReport) {
+		this.makeReport = makeReport;
+	}
 
 	public Stage getPrimaryStage() {
 		return primaryStage;
