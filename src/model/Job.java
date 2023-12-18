@@ -202,7 +202,7 @@ public class Job {
 		    return;
 		}
 		
-	   	String query = "UPDATE Job SET JobStatus = ? WHERE Job_ID = ?";
+	   	String query = "UPDATE Job SET JobStatus = ? WHERE PC_ID = ?";
 	   	try (Connection connection = Database.getDB().getConnection();
 	   		PreparedStatement ps = connection.prepareStatement(query)){
 	   		ps.setString(1, JobStatus);
