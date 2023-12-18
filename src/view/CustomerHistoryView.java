@@ -3,25 +3,22 @@ package view;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import model.PCBook;
 import model.TransactionDetail;
 
-public class HistoryView {
+public class CustomerHistoryView {
 	
 	private Stage primaryStage;
 	private TableView<TransactionDetail> table;
 	private Integer uid;
 	private Button backButton;
 	
-	public HistoryView(Stage primaryStage, Integer uid) {
+	public CustomerHistoryView(Stage primaryStage, Integer uid) {
 		// TODO Auto-generated constructor stub
 		this.primaryStage = primaryStage;
 		this.uid = uid;
@@ -35,7 +32,7 @@ public class HistoryView {
 		
 		Scene scene = new Scene(vbox, 800, 600);
 		primaryStage.setScene(scene);
-		primaryStage.setTitle("PC Booking");
+		primaryStage.setTitle("Customer History View");
 		primaryStage.show();
 	}
 	

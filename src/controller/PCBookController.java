@@ -5,14 +5,9 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 
 import database.Database;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.stage.Stage;
 import model.PCBook;
 import view.AssignUserToNewPCView;
@@ -28,6 +23,7 @@ public class PCBookController {
 	private BookingsView book;
 	private BookPCView pc;
 	private AssignUserToNewPCView ass;
+	private PCBook pcb = new PCBook();
 
 	public PCBookController(BookingsView book, Integer uid) {
 		this.book = book;
@@ -44,11 +40,15 @@ public class PCBookController {
         });
 		
 		book.getFinishButton().setOnAction(event -> {
-			
-        });
+			Date date = Date.valueOf(book.getDateInput().getText().toString());
+			ArrayList<PCBook> pcBookList = GetPcBookedByDate(date);
+			FinishBook(pcBookList, date);
+			loadTableDataBookings();
+	    });
 		
 		book.getCancelButton().setOnAction(event -> {
-			Integer id = Integer.parseInt(book.getIdInput().getText());
+			Integer id = null;
+			id = Integer.parseInt(book.getIdInput().getText());
 			DeleteBookData(id);
 			loadTableDataBookings();
         });
@@ -59,8 +59,30 @@ public class PCBookController {
 		book.getTable().getItems().setAll(pcbook);
 	}
 
-	public PCBookController(AssignUserToNewPCView op, Integer uid) {
-		// TODO Auto-generated constructor stub
+	public PCBookController(AssignUserToNewPCView ass, Integer uid) {
+		this.ass = ass;
+		this.uid = uid;
+		initializeAssign();
+		loadTableDataAssign();
+	}
+
+	private void initializeAssign() {
+		ass.getBackButton().setOnAction(event -> {
+			primaryStage = ass.getPrimaryStage();
+    		OperatorPCView book = new OperatorPCView(primaryStage, uid);
+    		PCController p = new PCController(book, uid);
+        });
+		ass.getUpdateButton().setOnAction(event -> {
+			Integer BookID = Integer.parseInt(ass.getIdInput().getText().toString());
+			Integer PcID = Integer.parseInt(ass.getPcInput().getText().toString());
+			AssignUserToNewPC(BookID, PcID);
+			loadTableDataAssign();
+	    });
+	}
+	
+	void loadTableDataAssign() {
+		ArrayList<PCBook> pcbook = GetAllPCBookedData();
+		ass.getTable().getItems().setAll(pcbook);
 	}
 
 	public PCBookController(BookPCView pc, Integer uid) {
@@ -75,6 +97,7 @@ public class PCBookController {
 			Integer pid = Integer.parseInt(pc.getPidInput().getText());
 			Date date = Date.valueOf(pc.getDateInput().getText().toString());
 			AddNewBook(pid, uid, date);
+			loadTableDataBook();
         });
 		
 		pc.getBackButton().setOnAction(event -> {
@@ -107,218 +130,40 @@ public class PCBookController {
     }
 
     public void AddNewBook(Integer pcId, Integer userId, Date bookedDate) {
-        if (bookedDate == null || pcId == null) {
-        	ShowAlert("Input can't be empty", AlertType.ERROR);
-            return;
-        }
-        boolean pcAvailable = IsAvailable(pcId, bookedDate);
-        if (pcAvailable) {
-            String query = "INSERT INTO PCBook(PC_ID, UserID, BookedDate) VALUES (?, ?, ?)";
-            try (Connection connection = Database.getDB().getConnection();
-                 PreparedStatement ps = connection.prepareStatement(query)) {
-                ps.setInt(1, pcId);
-                ps.setInt(2, userId);
-                ps.setDate(3, new java.sql.Date(bookedDate.getTime()));
-                ps.executeUpdate();
-                ShowAlert("PC is booked successfuly", AlertType.CONFIRMATION);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        } else {
-        	ShowAlert("PC is not available on the chosen date", AlertType.WARNING);
-            return;
-        }
+    	pcb.AddNewBook(pcId, userId, bookedDate);
     }
 	
     public void DeleteBookData(Integer bookID) {
-    	if (bookID == null) {
-			ShowAlert("Book ID must be selected", AlertType.WARNING);
-	        return;
-	    }
-        String query = "DELETE FROM PCBOOK WHERE BookID = ?";
-        try (Connection connection = Database.getDB().getConnection();
-             PreparedStatement ps = connection.prepareStatement(query)) {
-            ps.setInt(1, bookID);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+    	pcb.DeleteBookData(bookID);
     }
 	
 	public PCBook GetPCBookedData(Integer pcID, Date date) {
-	    PCBook pcbook = new PCBook();
-
-	    String query = "SELECT * FROM PCBook WHERE PC_ID = ? AND BookedDate = ?";
-
-	    try (Connection connection = Database.getDB().getConnection();
-	         PreparedStatement ps = connection.prepareStatement(query)) {
-	        ps.setInt(1, pcID);
-	        ps.setDate(2, new java.sql.Date(date.getTime()));
-
-	        try (ResultSet rs = ps.executeQuery()) {
-	            if (rs.next()) {
-	                pcbook.setBookID(rs.getInt("BookID"));
-	                pcbook.setUserID(rs.getInt("UserID"));
-	                pcbook.setBookedDate(rs.getDate("BookedDate"));
-	            }
-	        }
-	    } catch (SQLException e) {
-	        e.printStackTrace();
-	    }
-	    return pcbook;
+	    return pcb.GetPCBookedData(pcID, date);
 	}
 
 	public void AssignUserToNewPC(Integer bookID, Integer newPCID) {
-		if (newPCID == null) {
-	        ShowAlert("PC ID must be filled.", AlertType.ERROR);
-	        return;
-	    }
-
-	    Date chosenDate = GetBookedDate(bookID);
-	    if (!IsAvailable(newPCID, chosenDate)) {
-	        ShowAlert("PC with ID " + newPCID + " is already booked on the chosen date of " + chosenDate, AlertType.WARNING);
-	        return;
-	    }
-	    
-	    String query = "UPDATE PCBook SET PC_ID = ? WHERE BookID = ?";
-	    try (Connection connection = Database.getDB().getConnection();
-	         PreparedStatement ps = connection.prepareStatement(query)) {
-	        ps.setInt(1, newPCID);
-	        ps.setInt(2, bookID);
-	        ps.executeUpdate();
-	    } catch (SQLException e) {
-	        e.printStackTrace();
-	    }
-	}
-	
-	private Date GetBookedDate(Integer bookID) {
-	    String query = "SELECT BookedDate FROM PCBook WHERE BookID = ?";
-
-	    try (Connection connection = Database.getDB().getConnection();
-	         PreparedStatement ps = connection.prepareStatement(query)) {
-	        ps.setInt(1, bookID);
-	        try (ResultSet rs = ps.executeQuery()) {
-	            if (rs.next()) {
-	                return rs.getDate("BookedDate");
-	            }
-	        }
-	    } catch (SQLException e) {
-	        e.printStackTrace();
-	    }
-	    return null;
+		pcb.AssignUserToNewPC(bookID, newPCID);
 	}
 	
 	public PCBook GetPCBookedDetail(Integer bookID) {
-	    PCBook pcbook = null;
-	    String query = "SELECT * FROM PCBook WHERE BookID = ?";
-	    try (Connection connection = Database.getDB().getConnection();
-	         PreparedStatement ps = connection.prepareStatement(query)) {
-	        ps.setInt(1, bookID);
-	        try (ResultSet rs = ps.executeQuery()) {
-	            if (rs.next()) {
-	                pcbook = new PCBook();
-	                pcbook.setBookID(rs.getInt("BookID"));
-	                pcbook.setUserID(rs.getInt("UserID"));
-	                pcbook.setPC_ID(rs.getInt("PC_ID"));
-	                pcbook.setBookedDate(rs.getDate("BookedDate"));
-	            }
-	        }
-	    } catch (SQLException e) {
-	        e.printStackTrace();
-	    }
-	    return pcbook;
+	    return pcb.GetPCBookedDetail(bookID);
 	}
 	
-	public void FinishBook(List<PCBook> pcBookList, Date chosenDate) {
-		if (chosenDate == null) {
-			ShowAlert("Date must be selected", AlertType.WARNING);
-	        return;
-	    }
-	    String finishBookQuery = "DELETE FROM PCBook WHERE BookID = ? AND BookedDate = ?";
-	    
-	    try (Connection connection = Database.getDB().getConnection();
-	         PreparedStatement ps = connection.prepareStatement(finishBookQuery)) {
-	        for (PCBook pcBook : pcBookList) {
-	            ps.setInt(1, pcBook.getBookID());
-	            ps.setDate(2, new java.sql.Date(chosenDate.getTime()));
-	            ps.executeUpdate();
-	        }
-	    } catch (SQLException e) {
-	        e.printStackTrace();
-	    }
+	public void FinishBook(ArrayList<PCBook> pcBookList, Date chosenDate) {
+		PCBook pcbFinishBook = new PCBook(this.uid);
+		pcbFinishBook.FinishBook(pcBookList, chosenDate);
 	}
 	
 	public ArrayList<PCBook> GetAllPCBookedData() {
-	    ArrayList<PCBook> pcBookList = new ArrayList<>();
-	    String query = "SELECT * FROM PCBook";
-	    
-	    try {
-	    	Connection connection = Database.getDB().getConnection();
-	    	PreparedStatement ps = connection.prepareStatement(query);
-	        ResultSet resultSet = ps.executeQuery();
-	        while (resultSet.next()) {
-	            Integer bookID = resultSet.getInt("BookID");
-	            Integer pcID = resultSet.getInt("PC_ID");
-	            Integer userID = resultSet.getInt("UserID");
-	            Date bookedDate = resultSet.getDate("BookedDate");
-	            pcBookList.add(new PCBook(bookID, pcID, userID, bookedDate));
-	        }
-	    } catch (SQLException e) {
-	        e.printStackTrace();
-	    }
-	    return pcBookList;
+	    return pcb.GetAllPCBookedData();
 	}
 	
 	public ArrayList<PCBook> GetAllPCBookedUserData(Integer uid) {
-	    ArrayList<PCBook> pcBookList = new ArrayList<>();
-	    String query = "SELECT * FROM PCBook WHERE UserID = ?";
-	    
-	    try {
-	    	Connection connection = Database.getDB().getConnection();
-	        PreparedStatement ps = connection.prepareStatement(query);
-	        ps.setInt(1, uid);
-	        ResultSet resultSet = ps.executeQuery();
-	        while (resultSet.next()) {
-	            Integer bookID = resultSet.getInt("BookID");
-	            Integer pcID = resultSet.getInt("PC_ID");
-	            Date bookedDate = resultSet.getDate("BookedDate");
-	            pcBookList.add(new PCBook(bookID, pcID, bookedDate));
-	        }
-	    } catch (SQLException e) {
-	        e.printStackTrace();
-	    }
-	    return pcBookList;
+	    return pcb.GetAllPCBookedUserData(uid);
 	}
 	
 	public ArrayList<PCBook> GetPcBookedByDate(Date date) {
-	    ArrayList<PCBook> pcBookList = new ArrayList<>();
-	    
-	    String query = "SELECT * FROM PCBook WHERE BookedDate = ?";
-
-	    try (Connection connection = Database.getDB().getConnection();
-	         PreparedStatement ps = connection.prepareStatement(query)) {
-	        ps.setDate(1, new java.sql.Date(date.getTime()));
-	        try (ResultSet resultSet = ps.executeQuery()) {
-	            while (resultSet.next()) {
-	                Integer bookID = resultSet.getInt("BookID");
-	                Integer pcID = resultSet.getInt("PC_ID");
-	                Integer userID = resultSet.getInt("UserID");
-	                Date bookedDate = resultSet.getDate("BookedDate");
-	                pcBookList.add(new PCBook(bookID, pcID, userID, bookedDate));
-	            }
-	        }
-	    } catch (SQLException e) {
-	        e.printStackTrace();
-	    }
-	    return pcBookList;
+	    return pcb.GetPcBookedByDate(date);
 	}
-	
-	private void ShowAlert(String message, AlertType alertType) {
-        Alert alert = new Alert(alertType);
-        alert.setTitle("PC Booking System");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
 
 }

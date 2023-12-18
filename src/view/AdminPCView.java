@@ -19,7 +19,7 @@ public class AdminPCView {
 	private TextField idInput, condInput;
 	private Label idLbl, condLbl;
 	private Integer uid;
-	private Button addButton, deleteButton, updateButton, viewStaffButton, viewAllJobButton;
+	private Button addButton, deleteButton, updateButton, viewStaffButton, reportButton, historyButton, viewAllJobButton;
 
 	public AdminPCView(Stage primaryStage, Integer uid) {
 		this.primaryStage = primaryStage;
@@ -68,20 +68,32 @@ public class AdminPCView {
         deleteButton = new Button("Delete PC");
         updateButton = new Button("Update PC");
         viewStaffButton = new Button("View All Staff");
-        viewAllJobButton = new Button("View All Job");
+        reportButton = new Button("Report");
+        historyButton = new Button("History");
+		viewAllJobButton = new Button("View All Job");
         
         form.add(idLbl, 0, 0);
         form.add(idInput, 1, 0);
-        form.add(condLbl, 0, 1);  
+		form.add(condLbl, 0, 1);  
         form.add(condInput, 1, 1);  
-        form.add(addButton, 0, 2);  
-        form.add(deleteButton, 1, 2);  
+        form.add(addButton, 0, 2);
+        form.add(deleteButton, 1, 2);
         form.add(updateButton, 10, 2);
         form.add(viewStaffButton, 11, 2);
-        form.add(viewAllJobButton, 12, 2);
+        form.add(reportButton, 12, 2);
+        form.add(historyButton, 13, 2);
+		form.add(viewAllJobButton, 14, 2);
 
         return form;
     }
+
+	public Button getHistoryButton() {
+		return historyButton;
+	}
+
+	public void setHistoryButton(Button historyButton) {
+		this.historyButton = historyButton;
+	}
 
 	public Button getViewStaffButton() {
 		return viewStaffButton;
@@ -89,6 +101,14 @@ public class AdminPCView {
 
 	public void setViewStaffButton(Button viewStaffButton) {
 		this.viewStaffButton = viewStaffButton;
+    }
+
+	public Button getReportButton() {
+		return reportButton;
+	}
+
+	public void setReportButton(Button reportButton) {
+		this.reportButton = reportButton;
 	}
 
 	public Button getViewAllJobButton() {

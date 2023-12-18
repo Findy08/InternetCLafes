@@ -11,38 +11,38 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import model.PCBook;
 import model.TransactionDetail;
+import model.TransactionHeader;
 
-public class HistoryView {
+public class AdminTransactionDetailView {
 	
 	private Stage primaryStage;
-	private TableView<TransactionDetail> table;
+	private TableView<TransactionDetail> tdTable;
 	private Integer uid;
 	private Button backButton;
 	
-	public HistoryView(Stage primaryStage, Integer uid) {
+	public AdminTransactionDetailView(Stage primaryStage, Integer uid) {
 		// TODO Auto-generated constructor stub
 		this.primaryStage = primaryStage;
 		this.uid = uid;
 		VBox vbox = new VBox();
-		table = createTransactionDetailDataTable();
-		
-		GridPane form = createTransactionDetailForm(table);
+		tdTable = createTransactionDetailDataTable();
+
+		GridPane form = createTransactionDetailForm(tdTable);
 		VBox.setMargin(form, new Insets(20));
-		vbox.getChildren().addAll(table, form);
-		table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+		vbox.getChildren().addAll(tdTable, form);
+		tdTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 		
 		Scene scene = new Scene(vbox, 800, 600);
 		primaryStage.setScene(scene);
-		primaryStage.setTitle("PC Booking");
+		primaryStage.setTitle("Admin History View");
 		primaryStage.show();
 	}
 	
 	private TableView<TransactionDetail> createTransactionDetailDataTable() {
-		TableView<TransactionDetail> table = new TableView<>();
+	    TableView<TransactionDetail> table = new TableView<>();
 
-        TableColumn<TransactionDetail, Number> idColumn = new TableColumn<>("Transaction ID");
+	    TableColumn<TransactionDetail, Number> idColumn = new TableColumn<>("Transaction ID");
         idColumn.setCellValueFactory(new PropertyValueFactory<>("TransactionID"));
         
         TableColumn<TransactionDetail, Number> pidColumn = new TableColumn<>("PC ID");
@@ -61,7 +61,7 @@ public class HistoryView {
 		
         return table;
 	}
-
+	
 	private GridPane createTransactionDetailForm(TableView<TransactionDetail> table) {
 		GridPane form = new GridPane();
         form.setVgap(20);
@@ -72,36 +72,29 @@ public class HistoryView {
 
         return form;
 	}
-
-	public Stage getPrimaryStage() {
+	
+	public final Stage getPrimaryStage() {
 		return primaryStage;
 	}
-
-	public void setPrimaryStage(Stage primaryStage) {
+	public final void setPrimaryStage(Stage primaryStage) {
 		this.primaryStage = primaryStage;
 	}
-
-	public TableView<TransactionDetail> getTable() {
-		return table;
+	public final TableView<TransactionDetail> getTdTable() {
+		return tdTable;
 	}
-
-	public void setTable(TableView<TransactionDetail> table) {
-		this.table = table;
+	public final void setTdTable(TableView<TransactionDetail> tdTable) {
+		this.tdTable = tdTable;
 	}
-
-	public Integer getUid() {
+	public final Integer getUid() {
 		return uid;
 	}
-
-	public void setUid(Integer uid) {
+	public final void setUid(Integer uid) {
 		this.uid = uid;
 	}
-
-	public Button getBackButton() {
+	public final Button getBackButton() {
 		return backButton;
 	}
-
-	public void setBackButton(Button backButton) {
+	public final void setBackButton(Button backButton) {
 		this.backButton = backButton;
 	}
 	
